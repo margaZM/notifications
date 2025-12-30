@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build:all": "pnpm run build --workspaces --if-present",
+    "build:common": "npx tsc -p libs/common/tsconfig.json",
+    "build:database": "npx tsc -p libs/database/tsconfig.json",
+    "lint:all": "pnpm run lint --workspaces",
+    "test:all": "pnpm test --workspaces",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {}
+}
