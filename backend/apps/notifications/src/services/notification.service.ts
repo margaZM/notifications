@@ -15,9 +15,6 @@ import {
 } from "../dtos/NotificationDto";
 import { NOTIFICATIONS_REPOSITORY_PORT } from "../app.constants";
 import { type INotificationRepository } from "../repositories/notification-repository.interface";
-import { SendGridEmailSenderStrategy } from "./strategies/sendgrid-email.strategy";
-import { TwilioSmsSenderStrategy } from "./strategies/twilio-sms.strategy";
-import { PushNotificationSenderStrategy } from "./strategies/push.strategy";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { NotificationStatus } from "@margazm/database";
@@ -34,10 +31,6 @@ export class NotificationsService {
 
     @Inject(CONTACTS_SERVICE)
     private readonly contactClient: ClientProxy,
-
-    private readonly sendGridStrategy: SendGridEmailSenderStrategy,
-    private readonly twilioStrategy: TwilioSmsSenderStrategy,
-    private readonly pushStrategy: PushNotificationSenderStrategy,
   ) {}
 
   async create(
@@ -52,7 +45,7 @@ export class NotificationsService {
         title: data.title,
         content: data.content,
         channel: data.channel,
-        phoneNumber: contact.phoneNumber,
+        phoneNumber: `+51${contact.phoneNumber}`,
         email: contact.email,
         deviceToken: contact.deviceToken,
       });
@@ -72,8 +65,8 @@ export class NotificationsService {
       return await this.notificationRepository.updateNotification({
         notificationId: initialNotification.notificationId,
         authorId: data.authorId,
-        recipientContactId: data.recipientContactId, // Requerido por el DTO
-        channel: data.channel, // Requerido por el DTO
+        recipientContactId: data.recipientContactId,
+        channel: data.channel,
         status: NotificationStatus.FAILED,
         title: data.title,
         content: data.content,
@@ -103,12 +96,10 @@ export class NotificationsService {
   }
 
   async update(data: UpdateNotificationDto): Promise<FullNotificationResponseDto> {
-    console.log("Update notification called with data:", data);
     const exists = await this.notificationRepository.getNotificationById({
       notificationId: data.notificationId,
       authorId: data.authorId,
     });
-    console.log("Existing notification:", exists);
     if (!exists) throw new NotFoundException("Notification not found");
     if (exists.status === NotificationStatus.SENT) {
       if (data.recipientContactId || data.channel) {
@@ -119,8 +110,6 @@ export class NotificationsService {
     }
     const targetContactId = data.recipientContactId || exists.recipientContactId;
 
-    console.log(`Target contact ID: ${targetContactId}`);
-
     const contact = await this.fetchContactData(targetContactId);
 
     const targetChannel = data.channel || exists.channel;
@@ -130,7 +119,7 @@ export class NotificationsService {
         title: data.title,
         content: data.content,
         channel: data.channel,
-        phoneNumber: contact.phoneNumber,
+        phoneNumber: `+51${contact.phoneNumber}`,
         email: contact.email,
         deviceToken: contact.deviceToken,
       });
@@ -160,7 +149,6 @@ export class NotificationsService {
   }
 
   private async fetchContactData(contactId: string) {
-    console.log(`Fetching contact data for contactId: ${contactId}`);
     try {
       const contact = await firstValueFrom(
         this.contactClient.send(EVENTS.CONTACTS.GET_BY_ID, contactId),

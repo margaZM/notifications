@@ -33,7 +33,6 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   updateNotification(data: UpdateNotificationDto): Promise<NotificationResponseDto> {
-    console.log("Fetching notification with data:", data);
     const payload = {
       title: data?.title,
       content: data?.content,

@@ -14,8 +14,8 @@ export class TwilioService {
     const phoneNumber = this.configService.get<string>("TWILIO_PHONE_NUMBER");
 
     if (!accountSid || !authToken || !phoneNumber) {
-      this.logger.error("Configuración de Twilio incompleta en el entorno");
-      throw new Error("Twilio configuration missing");
+      this.logger.error("Missing Twilio configuration");
+      throw new Error("Missing Twilio configuratio");
     }
 
     this.client = new Twilio(accountSid, authToken);
@@ -30,7 +30,7 @@ export class TwilioService {
         to,
       });
     } catch (error: any) {
-      this.logger.error(`Error en cliente Twilio: ${error.message}`);
+      this.logger.error(`Twilio Error: ${error.message}`);
       throw error;
     }
   }

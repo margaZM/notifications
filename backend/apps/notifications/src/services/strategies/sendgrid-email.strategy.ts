@@ -35,6 +35,8 @@ export class SendGridEmailSenderStrategy implements NotificationSender {
     }
 
     try {
+      this.logger.log(`Sending email to: ${notification.email}`);
+
       await this.sendGridService.sendDynamicEmail(notification.email, this.templateId, {
         subject: notification.title,
         body: notification.content,

@@ -24,6 +24,8 @@ export class TwilioSmsSenderStrategy implements NotificationSender {
     }
 
     try {
+      this.logger.log(`Sending SMS to: ${notification.phoneNumber}`);
+
       const messageBody = notification.title
         ? `${notification.title.toUpperCase()}: ${notification.content}`
         : notification.content;

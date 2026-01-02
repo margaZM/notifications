@@ -12,7 +12,7 @@ export class SendGridService {
     const email = this.configService.get<string>("SENDGRID_SYSTEM_EMAIL_ADDRESS");
 
     if (!apiKey || !email) {
-      this.logger.error("Configuración de SendGrid incompleta en el entorno");
+      this.logger.error("SendGrid configuration missing");
       throw new Error("SendGrid configuration missing");
     }
 
@@ -29,7 +29,7 @@ export class SendGridService {
         dynamicTemplateData: data,
       });
     } catch (error: any) {
-      this.logger.error(`Error en cliente SendGrid: ${error.message}`);
+      this.logger.error(`SendGrid Error: ${error.message}`);
       throw error;
     }
   }

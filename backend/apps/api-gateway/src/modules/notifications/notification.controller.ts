@@ -91,7 +91,6 @@ export class NotificationController {
     @Param("id") id: string,
     @Body() updateNotificationDto: UpdateNotificationDto,
   ): Promise<NotificationResponseDto> {
-    console.log("updateNotificationDto", updateNotificationDto);
     return await firstValueFrom(
       this.notificationClient.send(EVENTS.NOTIFICATIONS.UPDATE, {
         notificationId: id,
