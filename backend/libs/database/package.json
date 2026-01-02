@@ -1,0 +1,48 @@
+{
+  "name": "@margazm/database",
+  "version": "1.0.9",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "prisma",
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/margaZM/notifications.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "prisma:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema=./src/prisma/schema.prisma",
+    "build": "npm run prisma:generate && tsc -p tsconfig.lib.json",
+    "publish": "npm run build && npm publish",
+    "patch:publish": "npm version patch && npm run publish:local",
+    "postinstall": "npm run prisma:generate",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.25.0",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "@prisma/client-runtime-utils": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.2.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^22.19.3"
+  },
+  "peerDependencies": {
+    "@prisma/client": ">=7"
+  }
+}

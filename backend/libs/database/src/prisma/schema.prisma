@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../dist/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  userId        String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  notifications Notification[] @relation("NotificationAuthor")
+  createdAt     DateTime       @default(now())
+}
+
+model Notification {
+  notificationId     String              @id @default(uuid())
+  title              String
+  content            String
+  channel            NotificationChannel @default(EMAIL)
+  authorId           String
+  recipientContactId String
+  status             NotificationStatus  @default(PENDING)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  recipientContact   Contact             @relation("NotificationRecipient", fields: [recipientContactId], references: [contactId], onDelete: Cascade)
+  author             User                @relation("NotificationAuthor", fields: [authorId], references: [userId], onDelete: Cascade)
+}
+
+model Contact {
+  contactId     String         @id @default(uuid())
+  email         String         @unique
+  phoneNumber   String         @unique
+  deviceToken   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[] @relation("NotificationRecipient")
+}
