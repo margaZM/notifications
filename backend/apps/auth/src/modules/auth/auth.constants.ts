@@ -1,0 +1,3 @@
+export const TOKEN_GENERATOR_PORT = 'TOKEN_GENERATOR_PORT';
+
+export const HASHER_PORT = 'HASHER_PORT';
