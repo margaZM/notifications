@@ -1,0 +1,176 @@
+import {
+  Inject,
+  Injectable,
+  OnModuleInit,
+  InternalServerErrorException,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import {
+  CreateNotificationDto,
+  DeleteNotificationDto,
+  FindOneNotificationDto,
+  FullNotificationResponseDto,
+  UpdateNotificationDto,
+} from "../dtos/NotificationDto";
+import { NOTIFICATIONS_REPOSITORY_PORT } from "../app.constants";
+import { type INotificationRepository } from "../repositories/notification-repository.interface";
+import { SendGridEmailSenderStrategy } from "./strategies/sendgrid-email.strategy";
+import { TwilioSmsSenderStrategy } from "./strategies/twilio-sms.strategy";
+import { PushNotificationSenderStrategy } from "./strategies/push.strategy";
+import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom } from "rxjs";
+import { NotificationStatus } from "@margazm/database";
+import { CONTACTS_SERVICE, EVENTS } from "@margazm/common";
+import { NotificationSenderService } from "./notification-sender.service";
+
+@Injectable()
+export class NotificationsService {
+  constructor(
+    private readonly senderService: NotificationSenderService,
+
+    @Inject(NOTIFICATIONS_REPOSITORY_PORT)
+    private readonly notificationRepository: INotificationRepository,
+
+    @Inject(CONTACTS_SERVICE)
+    private readonly contactClient: ClientProxy,
+
+    private readonly sendGridStrategy: SendGridEmailSenderStrategy,
+    private readonly twilioStrategy: TwilioSmsSenderStrategy,
+    private readonly pushStrategy: PushNotificationSenderStrategy,
+  ) {}
+
+  async create(
+    data: CreateNotificationDto & { authorId: string },
+  ): Promise<FullNotificationResponseDto> {
+    const contact = await this.fetchContactData(data.recipientContactId);
+
+    const initialNotification = await this.notificationRepository.createNotification(data);
+
+    try {
+      const deliveryResult = await this.senderService.send(data.channel, {
+        title: data.title,
+        content: data.content,
+        channel: data.channel,
+        phoneNumber: contact.phoneNumber,
+        email: contact.email,
+        deviceToken: contact.deviceToken,
+      });
+
+      return await this.notificationRepository.updateNotification({
+        notificationId: initialNotification.notificationId,
+        authorId: data.authorId,
+        recipientContactId: data.recipientContactId,
+        channel: data.channel,
+        status: deliveryResult.status,
+        sentAt: deliveryResult.status === NotificationStatus.SENT ? deliveryResult.sendAt : null,
+        title: data.title,
+        content: data.content,
+      });
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      return await this.notificationRepository.updateNotification({
+        notificationId: initialNotification.notificationId,
+        authorId: data.authorId,
+        recipientContactId: data.recipientContactId, // Requerido por el DTO
+        channel: data.channel, // Requerido por el DTO
+        status: NotificationStatus.FAILED,
+        title: data.title,
+        content: data.content,
+        sentAt: null,
+      });
+    }
+  }
+
+  async delete(data: DeleteNotificationDto): Promise<FullNotificationResponseDto> {
+    const exists = await this.notificationRepository.getNotificationById(data);
+    if (!exists) {
+      throw new NotFoundException("Notification does not exists.");
+    }
+    return await this.notificationRepository.deleteNotification(data);
+  }
+
+  async getById(data: FindOneNotificationDto): Promise<FullNotificationResponseDto> {
+    const notification = await this.notificationRepository.getNotificationById(data);
+    if (!notification) {
+      throw new NotFoundException("Notification not found.");
+    }
+    return notification;
+  }
+
+  async getAll(id: string): Promise<FullNotificationResponseDto[]> {
+    return await this.notificationRepository.getAllNotifications(id);
+  }
+
+  async update(data: UpdateNotificationDto): Promise<FullNotificationResponseDto> {
+    console.log("Update notification called with data:", data);
+    const exists = await this.notificationRepository.getNotificationById({
+      notificationId: data.notificationId,
+      authorId: data.authorId,
+    });
+    console.log("Existing notification:", exists);
+    if (!exists) throw new NotFoundException("Notification not found");
+    if (exists.status === NotificationStatus.SENT) {
+      if (data.recipientContactId || data.channel) {
+        throw new BadRequestException(
+          "Cannot change recipient or channel of an already SENT notification",
+        );
+      }
+    }
+    const targetContactId = data.recipientContactId || exists.recipientContactId;
+
+    console.log(`Target contact ID: ${targetContactId}`);
+
+    const contact = await this.fetchContactData(targetContactId);
+
+    const targetChannel = data.channel || exists.channel;
+
+    try {
+      const deliveryResult = await this.senderService.send(targetChannel, {
+        title: data.title,
+        content: data.content,
+        channel: data.channel,
+        phoneNumber: contact.phoneNumber,
+        email: contact.email,
+        deviceToken: contact.deviceToken,
+      });
+      const updatePayload: UpdateNotificationDto = {
+        ...data,
+        title: data.title || exists.title,
+        content: data.content || exists.content,
+        recipientContactId: targetContactId,
+        channel: targetChannel,
+        status: deliveryResult.status,
+        sentAt: deliveryResult.status === NotificationStatus.SENT ? deliveryResult.sendAt : null,
+      };
+
+      return await this.notificationRepository.updateNotification(updatePayload);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      return await this.notificationRepository.updateNotification({
+        ...data,
+        recipientContactId: targetContactId,
+        channel: targetChannel,
+        status: NotificationStatus.FAILED,
+        title: data.title || exists.title,
+        content: data.content || exists.content,
+        sentAt: null,
+      });
+    }
+  }
+
+  private async fetchContactData(contactId: string) {
+    console.log(`Fetching contact data for contactId: ${contactId}`);
+    try {
+      const contact = await firstValueFrom(
+        this.contactClient.send(EVENTS.CONTACTS.GET_BY_ID, contactId),
+      );
+      if (!contact) throw new NotFoundException(`Contact ${contactId} not found`);
+      return contact;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      console.error(`Error de comunicación con Contacts Service: ${error}`);
+      throw new InternalServerErrorException("Communication error with Contacts Service");
+    }
+  }
+}
