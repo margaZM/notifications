@@ -1,0 +1,37 @@
+import { IContactRepository, ContactEntity } from "./contact-repository.interface";
+import { RegisterContactDto } from "../dtos/RegisterContactDto";
+import { Injectable } from "@nestjs/common";
+import { DatabaseService } from "@margazm/database";
+
+@Injectable()
+export class ContactRepository implements IContactRepository {
+  constructor(private prisma: DatabaseService) {}
+
+  registerContact(data: RegisterContactDto): Promise<ContactEntity> {
+    return this.prisma.contact.create({ data });
+  }
+
+  getContactByEmail(email: string): Promise<ContactEntity | null> {
+    return this.prisma.contact.findUnique({
+      where: { email },
+    });
+  }
+
+  getContactByPhoneNumber(phoneNumber: string): Promise<ContactEntity | null> {
+    return this.prisma.contact.findUnique({
+      where: { phoneNumber },
+    });
+  }
+
+  getContactById(id: string): Promise<ContactEntity | null> {
+    return this.prisma.contact.findUnique({
+      where: { contactId: id },
+    });
+  }
+
+  deleteContact(id: string): Promise<ContactEntity> {
+    return this.prisma.contact.delete({
+      where: { contactId: id },
+    });
+  }
+}
