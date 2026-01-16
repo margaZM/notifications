@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- PRIMARY PALETTE (Purples) --- */
+  --color-primary-100: #dcc5ff;
+  --color-primary-200: #c19bff;
+  --color-primary-300: #a166ff;
+  --color-primary-400: #8b5cf6;
+  --color-primary-500: #502aa9;
+  --color-primary-600: #3f028a;
+  --color-primary-700: #2d0263;
+  --color-primary-800: #1b013b;
+
+  --color-primary-light: var(--color-primary-200);
+  --color-primary-default: var(--color-primary-500);
+  --color-primary-dark: var(--color-primary-800);
+
+  /* --- SECONDARY PALETTE (Cyan/Teal) --- */
+  --color-secondary-light: #725cf2;
+  --color-secondary-default: #008eb3;
+  --color-secondary-dark: #008eb3;
+  /* #88DDD7 */
+  /* #0D7E91 */
+
+  /* --- GRAY PALETTE (Slate/Blue-Grays) --- */
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #f1f5f9;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #c1c7d0;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-gray-950: #020e2e;
+
+  --color-gray-ultra-light: var(--color-gray-100);
+  --color-gray-light: var(--color-gray-200);
+  --color-gray-default: var(--color-gray-500);
+  --color-gray-dark: var(--color-gray-800);
+
+  --color-dark: var(--color-gray-950);
+}
