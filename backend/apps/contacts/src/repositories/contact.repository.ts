@@ -11,6 +11,12 @@ export class ContactRepository implements IContactRepository {
     return this.prisma.contact.create({ data });
   }
 
+  getAllContacts(id: string): Promise<ContactEntity[]> {
+    return this.prisma.contact.findMany({
+      where: { authorId: id },
+    });
+  }
+
   getContactByEmail(email: string): Promise<ContactEntity | null> {
     return this.prisma.contact.findUnique({
       where: { email },

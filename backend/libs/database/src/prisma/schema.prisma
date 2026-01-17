@@ -36,29 +36,33 @@ model User {
   email         String         @unique
   password      String
   notifications Notification[] @relation("NotificationAuthor")
+  contacts      Contact[]      @relation("ContactAuthor")
   createdAt     DateTime       @default(now())
 }
 
 model Notification {
   notificationId     String              @id @default(uuid())
+  authorId           String              
+  recipientContactId String              
   title              String
   content            String
   channel            NotificationChannel @default(EMAIL)
-  authorId           String
-  recipientContactId String
   status             NotificationStatus  @default(PENDING)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+
   recipientContact   Contact             @relation("NotificationRecipient", fields: [recipientContactId], references: [contactId], onDelete: Cascade)
   author             User                @relation("NotificationAuthor", fields: [authorId], references: [userId], onDelete: Cascade)
 }
 
 model Contact {
   contactId     String         @id @default(uuid())
+  authorId      String         
   email         String         @unique
   phoneNumber   String         @unique
   deviceToken   String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  author        User           @relation("ContactAuthor", fields: [authorId], references: [userId], onDelete: Cascade)
   notifications Notification[] @relation("NotificationRecipient")
 }

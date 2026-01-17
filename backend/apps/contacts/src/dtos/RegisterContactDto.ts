@@ -13,4 +13,7 @@ export class RegisterContactDto {
   @IsString()
   @IsNotEmpty()
   deviceToken!: string;
+
+  @IsNotEmpty()
+  authorId!: string;
 }

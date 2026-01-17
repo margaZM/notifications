@@ -18,6 +18,7 @@ export class NotificationsController {
   async create(
     @Payload() createNotificationDto: CreateNotificationDto,
   ): Promise<NotificationResponseDto> {
+    console.log(createNotificationDto, "createNotificationDto");
     return this.notificationsService.create(createNotificationDto);
   }
 

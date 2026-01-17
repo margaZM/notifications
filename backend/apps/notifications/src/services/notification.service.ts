@@ -1,7 +1,6 @@
 import {
   Inject,
   Injectable,
-  OnModuleInit,
   InternalServerErrorException,
   NotFoundException,
   BadRequestException,
@@ -20,6 +19,7 @@ import { firstValueFrom } from "rxjs";
 import { NotificationStatus } from "@margazm/database";
 import { CONTACTS_SERVICE, EVENTS } from "@margazm/common";
 import { NotificationSenderService } from "./notification-sender.service";
+import { RpcException } from "@nestjs/microservices";
 
 @Injectable()
 export class NotificationsService {
@@ -39,6 +39,8 @@ export class NotificationsService {
     const contact = await this.fetchContactData(data.recipientContactId);
 
     const initialNotification = await this.notificationRepository.createNotification(data);
+
+    console.log(initialNotification, "initialNotification");
 
     try {
       const deliveryResult = await this.senderService.send(data.channel, {
@@ -78,7 +80,7 @@ export class NotificationsService {
   async delete(data: DeleteNotificationDto): Promise<FullNotificationResponseDto> {
     const exists = await this.notificationRepository.getNotificationById(data);
     if (!exists) {
-      throw new NotFoundException("Notification does not exists.");
+      throw new RpcException({ message: "Notification not found.", statusCode: 404 });
     }
     return await this.notificationRepository.deleteNotification(data);
   }
@@ -86,7 +88,7 @@ export class NotificationsService {
   async getById(data: FindOneNotificationDto): Promise<FullNotificationResponseDto> {
     const notification = await this.notificationRepository.getNotificationById(data);
     if (!notification) {
-      throw new NotFoundException("Notification not found.");
+      throw new RpcException({ message: "Notification not found.", statusCode: 404 });
     }
     return notification;
   }
@@ -100,12 +102,13 @@ export class NotificationsService {
       notificationId: data.notificationId,
       authorId: data.authorId,
     });
-    if (!exists) throw new NotFoundException("Notification not found");
+    if (!exists) throw new RpcException({ message: "Notification not found.", statusCode: 404 });
     if (exists.status === NotificationStatus.SENT) {
       if (data.recipientContactId || data.channel) {
-        throw new BadRequestException(
-          "Cannot change recipient or channel of an already SENT notification",
-        );
+        throw new RpcException({
+          message: "Notification has already been sent.",
+          statusCode: 400,
+        });
       }
     }
     const targetContactId = data.recipientContactId || exists.recipientContactId;
@@ -151,14 +154,17 @@ export class NotificationsService {
   private async fetchContactData(contactId: string) {
     try {
       const contact = await firstValueFrom(
-        this.contactClient.send(EVENTS.CONTACTS.GET_BY_ID, contactId),
+        this.contactClient.send(EVENTS.CONTACTS.FIND_BY_ID, contactId),
       );
-      if (!contact) throw new NotFoundException(`Contact ${contactId} not found`);
+      if (!contact)
+        throw new RpcException({ message: `Contact ${contactId} not found`, statusCode: 404 });
       return contact;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      console.error(`Error de comunicación con Contacts Service: ${error}`);
-      throw new InternalServerErrorException("Communication error with Contacts Service");
+      throw new RpcException({
+        message: "Internal server error.",
+        statusCode: 500,
+      });
     }
   }
 }

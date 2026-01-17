@@ -7,7 +7,10 @@ export const EVENTS = {
   CONTACTS: {
     REGISTER: "register-contact",
     DELETE: "delete-contact",
-    GET_BY_ID: "get-contact-by-id",
+    FIND_BY_ID: "find-contact-by-id",
+    FIND_BY_EMAIL: "find-contact-by-email",
+    FIND_BY_PHONE_NUMBER: "find-contact-by-phone-number",
+    FIND_ALL: "find-all-contacts",
   },
   NOTIFICATIONS: {
     CREATE: "create-notification",

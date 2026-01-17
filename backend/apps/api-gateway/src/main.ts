@@ -1,48 +1,58 @@
-import "dotenv/config";
-import { NestFactory } from "@nestjs/core";
-import { ApiGatewayModule } from "./app.module";
-import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { Logger, ValidationPipe } from "@nestjs/common";
+import 'dotenv/config';
+import { NestFactory } from '@nestjs/core';
+import { ApiGatewayModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { RpcExceptionFilter } from './modules/common/filters/rpc-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule);
-  const logger = new Logger("Gateway");
+	const app = await NestFactory.create(ApiGatewayModule);
 
-  const config = new DocumentBuilder()
-    .setTitle("Notifications API")
-    .setDescription("Sistema de gestion de notificaciones.")
-    .setVersion("1.0")
-    .addBearerAuth(
-      {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-        name: "JWT",
-        description: "JWT token",
-        in: "header",
-      },
-      "access-token",
-    )
-    .build();
+	app.useGlobalFilters(new RpcExceptionFilter());
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("docs", app, documentFactory);
+	const logger = new Logger('Gateway');
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      validationError: {
-        target: false,
-        value: false,
-      },
-    }),
-  );
+	app.enableCors({
+		origin: ['http://localhost:4000'],
+		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+		credentials: true,
+		allowedHeaders: 'Content-Type, Accept, Authorization',
+	});
 
-  const port = process.env.port || 3000;
+	const config = new DocumentBuilder()
+		.setTitle('Notifications API')
+		.setDescription('Sistema de gestion de notificaciones.')
+		.setVersion('1.0')
+		.addBearerAuth(
+			{
+				type: 'http',
+				scheme: 'bearer',
+				bearerFormat: 'JWT',
+				name: 'JWT',
+				description: 'JWT token',
+				in: 'header',
+			},
+			'access-token',
+		)
+		.build();
 
-  await app.listen(port);
-  logger.log(`API Gateway corriendo en http://localhost:${port}`);
+	const documentFactory = () => SwaggerModule.createDocument(app, config);
+	SwaggerModule.setup('docs', app, documentFactory);
+
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			transform: true,
+			validationError: {
+				target: false,
+				value: false,
+			},
+		}),
+	);
+
+	const port = process.env.port || 3000;
+
+	await app.listen(port);
+	logger.log(`API Gateway corriendo en http://localhost:${port}`);
 }
 bootstrap();

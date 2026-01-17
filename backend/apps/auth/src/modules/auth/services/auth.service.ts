@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-  ConflictException,
-} from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { LoginUserDto } from "../dtos/LoginUserDto";
 import { USERS_REPOSITORY_PORT } from "../../user/user.constants";
 import { HASHER_PORT, TOKEN_GENERATOR_PORT } from "../auth.constants";
@@ -12,6 +6,7 @@ import { type IUserRepository } from "../../user/repositories/user-repository.in
 import { type IHasher } from "../ports/hasher.port";
 import { type ITokenGenerator } from "../ports/token-generator.port";
 import { AuthTokenOutput } from "../dtos/AuthTokenOutput";
+import { RpcException } from "@nestjs/microservices";
 
 @Injectable()
 export class AuthService {
@@ -27,28 +22,33 @@ export class AuthService {
   ) {}
 
   async login(data: LoginUserDto): Promise<AuthTokenOutput> {
+    console.log(data, "data service");
     const { email, password } = data;
     let token: string;
 
     const userRegistered = await this.userRepository.getUserByEmail(email);
 
-    if (!userRegistered) {
-      throw new UnauthorizedException("Invalid email or password.");
+    console.log(userRegistered, "userRegistered");
+
+    if (userRegistered === null) {
+      throw new RpcException({ message: "Invalid email or password.", statusCode: 401 });
     }
 
     const isValidPassword = await this.hasher.compare(password, userRegistered.password);
-
+    console.log(isValidPassword);
     if (!isValidPassword) {
-      throw new UnauthorizedException("Invalid email or password.");
+      throw new RpcException({ message: "Invalid email or password.", statusCode: 401 });
     }
 
     try {
       token = await this.tokenGenerator.generate(userRegistered.userId);
     } catch (e) {
       console.error("Error generating JWT token:", e);
-      throw new InternalServerErrorException("Authentication failed due to server error.");
+      throw new RpcException({
+        message: "Authentication failed due to server error.",
+        statusCode: 500,
+      });
     }
-
     return {
       token,
       userId: userRegistered.userId,
@@ -63,7 +63,7 @@ export class AuthService {
     const isRegisteredUser = await this.userRepository.getUserByEmail(email);
 
     if (isRegisteredUser) {
-      throw new ConflictException("This user already exists.");
+      throw new RpcException({ message: "User already registered.", statusCode: 400 });
     }
 
     const hashedPassword = await this.hasher.hash(password);
@@ -79,9 +79,11 @@ export class AuthService {
       token = await this.tokenGenerator.generate(userRegistered.userId);
     } catch (e) {
       console.error("Error generating JWT token:", e);
-      throw new InternalServerErrorException("Authentication failed due to server error.");
+      throw new RpcException({
+        message: "Authentication failed due to server error.",
+        statusCode: 500,
+      });
     }
-
     return {
       token,
       ...userRegistered,
