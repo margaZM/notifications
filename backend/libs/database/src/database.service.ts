@@ -23,12 +23,8 @@ export class DatabaseService extends PrismaClient {
 
     super({
       adapter,
-      log: [
-        { emit: "stdout", level: "query" },
-        { emit: "stdout", level: "error" },
-        { emit: "stdout", level: "info" },
-        { emit: "stdout", level: "warn" },
-      ],
+      // log:
+      // 	process.env.NODE_ENV === 'test' ? ['error'] : ['query', 'info', 'warn', 'error'],
     });
   }
 

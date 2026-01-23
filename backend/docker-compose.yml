@@ -3,14 +3,14 @@ services:
     image: postgres:15
     container_name: postgres-db
     environment:
-      POSTGRES_PASSWORD: '123456'
-      DATABASE_URL: 'postgresql://postgres:123456@postgres-db:5432/postgres?schema=public'
+      POSTGRES_PASSWORD: "123456"
+      DATABASE_URL: "postgresql://postgres:123456@postgres-db:5432/postgres?schema=public"
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend
+      - notifications-shared-network
 
   api-gateway:
     build:
@@ -20,7 +20,7 @@ services:
         - npmrc
     container_name: api-gateway
     ports:
-      - '3000:3000'
+      - "3000:3000"
     env_file: .env
     depends_on:
       - auth-service
@@ -28,7 +28,7 @@ services:
       - notifications-service
       - postgres-db
     networks:
-      - backend
+      - notifications-shared-network
 
   auth-service:
     build:
@@ -41,7 +41,7 @@ services:
     depends_on:
       - postgres-db
     networks:
-      - backend
+      - notifications-shared-network
 
   contacts-service:
     build:
@@ -54,7 +54,7 @@ services:
     depends_on:
       - postgres-db
     networks:
-      - backend
+      - notifications-shared-network
 
   notifications-service:
     build:
@@ -67,10 +67,12 @@ services:
     depends_on:
       - postgres-db
     networks:
-      - backend
+      - notifications-shared-network
 
 networks:
-  backend:
+  notifications-shared-network:
+    external: true
+    name: notifications-shared-network
     driver: bridge
 
 volumes:

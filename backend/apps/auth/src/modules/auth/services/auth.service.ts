@@ -22,20 +22,16 @@ export class AuthService {
   ) {}
 
   async login(data: LoginUserDto): Promise<AuthTokenOutput> {
-    console.log(data, "data service");
     const { email, password } = data;
     let token: string;
 
     const userRegistered = await this.userRepository.getUserByEmail(email);
-
-    console.log(userRegistered, "userRegistered");
 
     if (userRegistered === null) {
       throw new RpcException({ message: "Invalid email or password.", statusCode: 401 });
     }
 
     const isValidPassword = await this.hasher.compare(password, userRegistered.password);
-    console.log(isValidPassword);
     if (!isValidPassword) {
       throw new RpcException({ message: "Invalid email or password.", statusCode: 401 });
     }

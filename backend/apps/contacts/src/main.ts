@@ -11,6 +11,7 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: {
       port: SERVICES_CONFIG.CONTACTS.PORT,
+      host: "0.0.0.0",
     },
   });
 

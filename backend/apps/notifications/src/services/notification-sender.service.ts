@@ -42,13 +42,10 @@ export class NotificationSenderService {
     }
 
     try {
-      this.logger.log(
-        `Start ${channel} notification sending process with input: ${JSON.stringify(input)}`,
-      );
+      // this.logger.log(
+      // 	`Start ${channel} notification sending process with input: ${JSON.stringify(input)}`,
+      // );
       const result = await strategy.send(input);
-
-      console.log(`Notification sent via ${channel}:`, result);
-
       return result;
     } catch (error) {
       this.logger.error(`Fail send to [${channel}]: ${error.message}`);

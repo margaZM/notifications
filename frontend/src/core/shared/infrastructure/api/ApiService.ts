@@ -27,7 +27,6 @@ export class ApiService {
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        console.log(config, "config");
         return config;
       },
       (error) => Promise.reject(error),
@@ -38,7 +37,6 @@ export class ApiService {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
-        console.log(error, "errror api service");
         const status = error.response?.status;
         if (status === 401) {
           const isLoginPage =
@@ -67,7 +65,6 @@ export class ApiService {
   }
 
   public async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    console.log(url, data, config, "post");
     const response: AxiosResponse<T> = await this.axiosInstance.post(url, data, config);
     return response.data;
   }

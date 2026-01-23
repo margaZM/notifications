@@ -1,0 +1,109 @@
+services:
+  postgres-db-test:
+    image: postgres:15
+    container_name: postgres-db-test
+    environment:
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: "postgres_test"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    command: >
+      sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
+      npx prisma db push --accept-data-loss --schema=./node_modules/@margazm/database/dist/generated/client/schema.prisma --url=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
+      pnpm run test:e2e"
+    build:
+      context: ./apps/auth
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    container_name: auth-service
+    env_file: .env.test
+    depends_on:
+      postgres-db-test:
+        condition: service_healthy
+    networks:
+      - backend-test
+
+  contacts-service:
+    command: >
+      sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
+      sleep 10 && pnpm run test:e2e"
+    build:
+      context: ./apps/contacts
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    container_name: contacts-service
+    env_file: .env.test
+    depends_on:
+      postgres-db-test:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - backend-test
+
+  notifications-service:
+    command: >
+      sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
+      sleep 10 && pnpm run test:e2e"
+    build:
+      context: ./apps/notifications
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    container_name: notifications-service
+    env_file: .env.test
+    depends_on:
+      postgres-db-test:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      contacts-service:
+        condition: service_started
+    networks:
+      - backend-test
+
+  api-gateway:
+    build:
+      context: ./apps/api-gateway
+      dockerfile: ./Dockerfile
+      secrets:
+        - npmrc
+    container_name: api-gateway
+    env_file: .env.test
+
+    depends_on:
+      auth-service:
+        condition: service_started
+      contacts-service:
+        condition: service_started
+      notifications-service:
+        condition: service_started
+    networks:
+      - backend-test
+
+networks:
+  backend-test:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+secrets:
+  npmrc:
+    file: .npmrc

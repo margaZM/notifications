@@ -40,8 +40,6 @@ export class NotificationsService {
 
     const initialNotification = await this.notificationRepository.createNotification(data);
 
-    console.log(initialNotification, "initialNotification");
-
     try {
       const deliveryResult = await this.senderService.send(data.channel, {
         title: data.title,
@@ -157,7 +155,10 @@ export class NotificationsService {
         this.contactClient.send(EVENTS.CONTACTS.FIND_BY_ID, contactId),
       );
       if (!contact)
-        throw new RpcException({ message: `Contact ${contactId} not found`, statusCode: 404 });
+        throw new RpcException({
+          message: `Contact ${contactId} not found`,
+          statusCode: 404,
+        });
       return contact;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;

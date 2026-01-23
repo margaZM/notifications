@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Inject } from "@nestjs/common";
 import { AuthTokenOutput, LoginUserDto, RegisterUserDto } from "./dtos/UserDto";
-import { ClientProxy } from "@nestjs/microservices";
+import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AUTH_SERVICE, EVENTS } from "@margazm/common";
@@ -21,12 +21,6 @@ export class AuthController {
   @ApiOperation({ summary: "Login user and get access token" })
   @ApiResponse({ status: 200, description: "Successful login" })
   async login(@Body() loginUserDto: LoginUserDto): Promise<AuthTokenOutput> {
-    try {
-      console.log(loginUserDto, "dto");
-      return await firstValueFrom(this.authClient.send(EVENTS.AUTH.LOGIN, loginUserDto));
-    } catch (error) {
-      console.log(error, "error controller login");
-      throw error;
-    }
+    return await firstValueFrom(this.authClient.send(EVENTS.AUTH.LOGIN, loginUserDto));
   }
 }

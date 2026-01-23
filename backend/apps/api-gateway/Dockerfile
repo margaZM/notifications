@@ -23,6 +23,8 @@ COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
+COPY --from=builder /app/node_modules/@margazm/database/dist/generated/client/schema.prisma ./schema.prisma
+
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]

@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
 import { IsAllowedChannel, IsChannelFieldValid } from "../notification.validator";
 import { NotificationChannel, NotificationStatus } from "@margazm/database";
 

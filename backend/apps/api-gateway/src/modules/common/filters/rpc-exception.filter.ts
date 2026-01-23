@@ -4,8 +4,6 @@ import type { Request, Response } from "express";
 @Catch()
 export class RpcExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
-    console.log(exception, "exception");
-    console.log(typeof exception, "exception");
     const ctx = host.switchToHttp();
 
     const response = ctx.getResponse<Response>();

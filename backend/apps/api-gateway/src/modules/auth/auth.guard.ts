@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { Request } from "express";
+import { RpcException } from "@nestjs/microservices";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -14,7 +15,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException("Access token not provided.");
+      throw new RpcException({ message: "Access token not provided.", statusCode: 401 });
     }
 
     try {
@@ -24,7 +25,10 @@ export class AuthGuard implements CanActivate {
 
       request["user"] = payload;
     } catch {
-      throw new UnauthorizedException("Invalid token.");
+      throw new RpcException({
+        message: "Invalid access token.",
+        statusCode: 401,
+      });
     }
 
     return true;

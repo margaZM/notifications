@@ -13,9 +13,7 @@ export class LoginUserUseCase {
     if (!credentials.password || credentials.password.length < 6) {
       throw new ValidationError("Password should be at least 6 characters.");
     }
-    console.log(credentials, "credentials");
     const response = await this.userRepository.loginUser(credentials);
-    console.log(response, "response");
     return response;
   }
 }

@@ -29,6 +29,7 @@ import { NotificationController } from "./modules/notifications/notification.con
         name: AUTH_SERVICE,
         transport: Transport.TCP,
         options: {
+          host: "auth-service",
           port: SERVICES_CONFIG.AUTH.PORT,
         },
       },
@@ -38,6 +39,7 @@ import { NotificationController } from "./modules/notifications/notification.con
         name: CONTACTS_SERVICE,
         transport: Transport.TCP,
         options: {
+          host: "contacts-service",
           port: SERVICES_CONFIG.CONTACTS.PORT,
         },
       },
@@ -47,6 +49,7 @@ import { NotificationController } from "./modules/notifications/notification.con
         name: NOTIFICATIONS_SERVICE,
         transport: Transport.TCP,
         options: {
+          host: "notifications-service",
           port: SERVICES_CONFIG.NOTIFICATIONS.PORT,
         },
       },
@@ -56,4 +59,4 @@ import { NotificationController } from "./modules/notifications/notification.con
   providers: [ApiGatewayService],
   exports: [ClientsModule],
 })
-export class ApiGatewayModule { }
+export class ApiGatewayModule {}

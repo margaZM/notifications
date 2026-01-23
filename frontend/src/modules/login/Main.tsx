@@ -30,7 +30,6 @@ export default function LoginViewMain() {
     try {
       setIsLoading(true);
       const user = await loginUseCase.execute(values);
-      console.log(user, "user");
       setUser(user);
       if (user.token) saveToken(user.token);
       showNotification("Welcome back! Login successful.", "success");

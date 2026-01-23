@@ -82,6 +82,7 @@ export class NotificationResponseDto {
   channel: NotificationChannel;
   createdAt: Date;
   updatedAt: Date;
+  sentAt?: Date;
   status: NotificationStatus;
 }
 
