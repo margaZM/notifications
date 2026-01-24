@@ -1,28 +1,64 @@
 version: 2.1
 
 jobs:
-  deploy:
-    docker:
-      - image: cimg/base:2022.05
+  build-and-test:
+    machine:
+      image: ubuntu-2204:current
     steps:
+      - checkout
+
       - run:
-          name: Deploy
+          name: Setup Credentials and Environment
           command: |
-            circleci run release plan \
-              --environment-name="<production>" \
-              --component-name="<notifications-app>" \
-              --target-version="<${CIRCLE_SHA1:0:7}>"
+            if [ -n "$NPMRC_CONTENT" ]; then
+              echo "$NPMRC_CONTENT" > .npmrc
+            fi
+
+            cp .env.test .env || true
+            cp .env.test backend/notifications/.env.test || true
+
       - run:
-          name: Update a deploy to SUCCESS
+          name: Pre-clean Docker
+          command: |
+            docker compose -f docker-compose.test.yml down -v --remove-orphans
+
+      - run:
+          name: Run Full Stack E2E Tests
+          command: |
+            node ./up_test.js
+
+      - run:
+          name: Post-test Cleanup
+          command: docker compose -f docker-compose.test.yml down -v
+          when: always
+
+  plan-release:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Orchestrate Release
+          command: |
+            SHORT_SHA=$(echo $CIRCLE_SHA1 | cut -c1-7)
+
+            circleci run release plan \
+              --environment-name="production" \
+              --component-name="notifications-fullstack" \
+              --target-version="${SHORT_SHA}"
+      - run:
+          name: Mark Release Success
           command: circleci run release update --status=SUCCESS
           when: on_success
       - run:
-          name: Update planned deploy to FAILED
+          name: Mark Release Failed
           command: circleci run release update --status=FAILED
           when: on_fail
 
 workflows:
-  version: 2
-  deploy_workflow:
+  main:
     jobs:
-      - deploy
+      - build-and-test
+      - plan-release:
+          requires:
+            - build-and-test
