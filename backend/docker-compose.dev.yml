@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "123456"
       POSTGRES_DB: "postgres_db"
-      DATABASE_URL: "postgresql://postgres:123456@postgres-db:5432/postgres_db?schema=public"
-
     ports:
       - "5432:5432"
     healthcheck:
@@ -84,8 +82,6 @@ services:
       dockerfile: ./Dockerfile
       secrets:
         - npmrc
-    command: >
-      sh -c "sleep 5 && node dist/main.js"
     ports:
       - "3000:3000"
     env_file: .env
@@ -99,7 +95,6 @@ services:
     networks:
       - notifications-shared-network
 
-# IMPORTANTE: Definimos que esta red es externa porque la crea el root
 networks:
   notifications-shared-network:
     driver: bridge

@@ -29,6 +29,7 @@ import { NotificationSenderService } from "./services/notification-sender.servic
           transport: Transport.TCP,
           options: {
             port: SERVICES_CONFIG.CONTACTS.PORT,
+            host: "contacts-service",
           },
         }),
       },

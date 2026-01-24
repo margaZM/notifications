@@ -1,4 +1,3 @@
-# Etapa de compilación
 FROM node:20-alpine AS builder
 
 RUN npm install -g pnpm
