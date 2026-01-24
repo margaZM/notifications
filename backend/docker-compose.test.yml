@@ -86,7 +86,6 @@ services:
         - npmrc
     container_name: api-gateway
     env_file: .env.test
-
     depends_on:
       auth-service:
         condition: service_started
