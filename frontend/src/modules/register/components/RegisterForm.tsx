@@ -9,33 +9,36 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
-  const { handleChange, handleSubmit, formData, isFormValid } = useRegisterForm(onSubmit);
+  const { handleChange, handleSubmit, formData, isFormValid, validators } =
+    useRegisterForm(onSubmit);
   const { email, password } = formData.fields;
-  const { errors } = formData;
-
-  console.log(isFormValid, "isFormValid");
+  const { errors, touched } = formData;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <CustomInput
+        id="email"
         label="Email Address"
         name="email"
         type="email"
         placeholder="Enter your email"
         value={email}
         onChange={handleChange}
-        isvalid={!errors.email}
-        message={errors.email}
+        isvalid={!touched.email || !errors.email}
+        message={touched.email ? errors.email : ""}
+        validators={validators.email}
       />
       <CustomInput
+        id="password"
         label="Password"
         name="password"
         type="password"
         placeholder="Create a password"
         value={password}
         onChange={handleChange}
-        isvalid={!errors.password}
-        message={errors.password}
+        isvalid={!touched.password || !errors.password}
+        message={touched.password ? errors.password : ""}
+        validators={validators.password}
       />
       <CustomButton type="submit" loading={isLoading} disabled={!isFormValid}>
         Create Account

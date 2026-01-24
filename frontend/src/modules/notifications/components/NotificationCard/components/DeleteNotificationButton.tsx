@@ -23,7 +23,6 @@ export const DeleteNotificationButton = ({ notificationId }: { notificationId: s
       showNotification("Notification deleted successfully.", "success");
       updateNotificationsInStore(notificationId);
     } catch (error: any) {
-      console.log(error);
       showNotification(error.message, "error");
     }
   };

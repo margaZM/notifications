@@ -1,0 +1,109 @@
+services:
+  # --- BASE DE DATOS ---
+  postgres-db:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: "postgres_db"
+      DATABASE_URL: "postgresql://postgres:123456@postgres-db:5432/postgres_db?schema=public"
+
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - notifications-shared-network
+
+  # --- AUTH SERVICE ---
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./apps/auth
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    command: pnpm run docker:start:auth
+    env_file: .env
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - notifications-shared-network
+
+  # --- CONTACTS SERVICE ---
+  contacts-service:
+    container_name: contacts-service
+    build:
+      context: ./apps/contacts
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    command: >
+      sh -c "sleep 5 && pnpm run start:dev"
+    env_file: .env
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - notifications-shared-network
+
+  # --- NOTIFICATIONS SERVICE ---
+  notifications-service:
+    container_name: notifications-service
+    build:
+      context: ./apps/notifications
+      dockerfile: ./Dockerfile
+      target: development
+      secrets:
+        - npmrc
+    command: >
+      sh -c "sleep 5 && pnpm run start:dev"
+    env_file: .env
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - notifications-shared-network
+
+  # --- API GATEWAY ---
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./apps/api-gateway
+      dockerfile: ./Dockerfile
+      secrets:
+        - npmrc
+    command: >
+      sh -c "sleep 5 && node dist/main.js"
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      auth-service:
+        condition: service_started
+      contacts-service:
+        condition: service_started
+      notifications-service:
+        condition: service_started
+    networks:
+      - notifications-shared-network
+
+# IMPORTANTE: Definimos que esta red es externa porque la crea el root
+networks:
+  notifications-shared-network:
+    driver: bridge
+
+secrets:
+  npmrc:
+    file: .npmrc

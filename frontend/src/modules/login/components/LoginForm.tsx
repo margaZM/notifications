@@ -10,33 +10,37 @@ interface LoginFormProps {
 }
 
 export const LoginForm = ({ onSubmit, isLoading }: LoginFormProps) => {
-  const { handleChange, handleSubmit, formData, isFormValid } = useLoginForm(onSubmit);
+  const { handleChange, handleSubmit, formData, isFormValid, validators } = useLoginForm(onSubmit);
 
   const { email, password } = formData.fields;
-  const { errors } = formData;
+  const { errors, touched } = formData;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <CustomInput
+        id="email"
         label="Email Address"
         name="email"
         type="email"
         placeholder="Enter your email"
         value={email}
         onChange={handleChange}
-        isvalid={!errors.email}
-        message={errors.email}
+        isvalid={!touched.email || !errors.email}
+        message={touched.email ? errors.email : ""}
+        validators={validators.email}
       />
 
       <CustomInput
+        id="password"
         label="Password"
         name="password"
         type="password"
         placeholder="Enter your password"
         value={password}
         onChange={handleChange}
-        isvalid={!errors.password}
-        message={errors.password}
+        isvalid={!touched.password || !errors.password}
+        message={touched.password ? errors.password : ""}
+        validators={validators.password}
       />
 
       <CustomButton type="submit" loading={isLoading} disabled={!isFormValid}>

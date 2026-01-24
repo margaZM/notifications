@@ -1,7 +1,7 @@
-import { ChangeEvent, FocusEvent } from "react";
+import { ChangeEvent, FocusEvent, useEffect, useState } from "react";
 
 interface InputProps {
-  id?: string;
+  id: string;
   label: string;
   type: string;
   name: string;
@@ -14,6 +14,11 @@ interface InputProps {
   disabled?: boolean;
   autofocus?: boolean;
   placeholder?: string;
+  validators?:
+    | Array<(value: string, allValues?: Record<string, string>) => string | null>
+    | ((value: string, allValues?: Record<string, string>) => string | null);
+  allValues?: Record<string, string>;
+  onIsValid?: (status: { id?: string; validInput: boolean; name: string }) => void;
 }
 
 export const CustomInput = ({
@@ -30,11 +35,33 @@ export const CustomInput = ({
   disabled,
   autofocus,
   placeholder,
+  validators = [],
+  allValues = {},
+  onIsValid,
 }: InputProps) => {
+  const [error, setError] = useState(null as string | null);
+
   const baseStyles = `w-full block p-2 rounded-md bg-gray-light text-slate-700 placeholder-slate-400 transition-all duration-200`;
   const focusStyles = `focus:outline-none focus:ring-1 focus:ring-primary-light focus:border-transparent`;
 
-  console.log(name, label, value, "input");
+  useEffect(() => {
+    let currentError = null;
+    const validatorList = Array.isArray(validators) ? validators : [validators];
+
+    for (const validator of validatorList) {
+      const msg = validator(value, allValues);
+      if (msg) {
+        currentError = msg;
+        break;
+      }
+    }
+
+    setError(currentError);
+
+    if (onIsValid) {
+      onIsValid({ id, name, validInput: !currentError });
+    }
+  }, [value, validators, allValues[id]]);
 
   return (
     <div className="flex flex-col w-full">

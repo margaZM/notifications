@@ -35,7 +35,6 @@ export default function LoginViewMain() {
       showNotification("Welcome back! Login successful.", "success");
       router.push("/");
     } catch (error: any) {
-      console.log(error);
       showNotification(error.message, "error");
     } finally {
       setIsLoading(false);

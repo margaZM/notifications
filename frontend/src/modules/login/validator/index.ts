@@ -1,6 +1,6 @@
-import * as Yup from "yup";
+import { valid } from "@/src/shared/utils/validators";
 
-export const LoginValidationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  password: Yup.string().required("Password is required"),
-});
+export const loginFormValidators = {
+  email: [valid.required("email"), valid.email()],
+  password: [valid.required("password")],
+};

@@ -6,7 +6,7 @@ export const CreateContactButton = () => {
     <div className="flex items-center justify-between mb-8">
       <h2 className="text-xl font-bold text-slate-700">Address Book</h2>
       <CustomButton>
-        <Plus size={18} /> New Contact
+        <Plus size={18} /> New Contacts
       </CustomButton>
     </div>
   );

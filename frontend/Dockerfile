@@ -1,28 +1,28 @@
-FROM node:20-alpine AS builder
-
+FROM node:20-alpine AS base
 WORKDIR /app
-
+RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
-
+FROM base AS development
+RUN pnpm install
 COPY . .
+EXPOSE 3000
+CMD ["pnpm", "dev", "-p", "3000", "-H", "0.0.0.0"]
 
+FROM base AS builder
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+RUN pnpm install --frozen-lockfile
+COPY . .
 RUN pnpm build
 
-FROM node:20-alpine
-
+FROM node:20-alpine AS runner
 WORKDIR /app
-
 RUN npm install -g pnpm
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install --frozen-lockfile --prod
-
-COPY --from=builder /app/.next ./.next
+ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
-
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./
+RUN pnpm install --frozen-lockfile --prod
 EXPOSE 4000
-
 CMD ["pnpm", "start"]

@@ -8,7 +8,6 @@ export const CreateNotificationButton = () => {
   const { openModal, closeModal } = useModalStore();
 
   const handleOpenModal = () => {
-    console.log("isModalOpen", isModalOpen);
     setIsModalOpen(true);
     openModal("createEditNotification");
   };

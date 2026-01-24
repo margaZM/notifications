@@ -39,7 +39,6 @@ export const SwitchDasboardLayout = () => {
       const notificationList = await getAllNotificationsUseCase.execute();
       setNotifications(notificationList);
     } catch (error: any) {
-      console.log(error);
       showNotification(error.message, "error");
     } finally {
       isFetching.current = false;
@@ -53,7 +52,6 @@ export const SwitchDasboardLayout = () => {
       const contactList = await getAllContactsUseCase.execute();
       setContacts(contactList);
     } catch (error: any) {
-      console.log(error);
       showNotification(error.message, "error");
     } finally {
       isFetching.current = false;

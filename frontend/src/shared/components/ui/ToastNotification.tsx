@@ -35,8 +35,6 @@ export const ToastNotification = ({
     warning: <AlertCircle className="w-5 h-5" />,
   };
 
-  console.log(message, "message toast");
-
   return (
     <div
       className={`fixed top-6 right-6 z-200 flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border animate-in slide-in-from-right-10 duration-300 ${styles[type]}`}

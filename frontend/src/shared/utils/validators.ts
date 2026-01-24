@@ -1,6 +1,5 @@
 export const isValidEmail = (email: string) => {
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  console.log(isValid);
   return isValid;
 };
 
@@ -22,29 +21,36 @@ export const valid = {
       !testFn(value, fieldValues) ? message : null,
 
   required: (keyword: string) => (value: any) =>
-    isNullOrEmptyString(value) ? `El ${keyword || "campo"} es obligatorio` : null,
+    isNullOrEmptyString(value) ? `The ${keyword || "field"} is required` : null,
 
   min: (min: number, keyword: string) => (value: string) =>
     value && value.length < min
-      ? `El ${keyword || "campo"} debe ser de al menos ${min} dígitos`
+      ? `The ${keyword || "field"} should be at least ${min} characters long`
       : null,
 
   max: (max: number, keyword: string) => (value: string) =>
     value && value.length > max
-      ? `El ${keyword || "campo"} debe ser máximo de ${max} dígitos`
+      ? `The ${keyword || "field"} should be at most ${max} characters long`
       : null,
 
   exact: (num: number, keyword: string) => (value: string) =>
-    value && value.length !== num ? `El ${keyword || "campo"} debe tener ${num} dígitos` : null,
+    value && value.length !== num ? `The ${keyword || "field"} should be ${num} characters` : null,
 
   number: (keyword: string) => (value: string) =>
-    value && !/^\d+$/.test(value) ? `El ${keyword || "campo"} solo permite números` : null,
+    value && !/^\d+$/.test(value) ? `The ${keyword || "field"} should be a number` : null,
 
-  email: () => (value: string) =>
-    value && !EMAIL_REGEX.test(value) ? "El campo debe ser un formato de email correcto" : null,
+  email: () => (value: string) => (value && !EMAIL_REGEX.test(value) ? "Invalid email" : null),
 
   oneOf: (allowedValues: string[], keyword: string) => (value: any) =>
-    value && !allowedValues.includes(value) ? `El valor de ${keyword} no es válido` : null,
+    value && !allowedValues.includes(value) ? `Invalid ${keyword}` : null,
+  compare: (fieldToMatch: string, keyword: string) => (value: any, allValues: any) =>
+    value !== allValues[fieldToMatch] ? `The ${keyword}s do not match` : null,
+  hasUppercase: (keyword: string) => (value: string) =>
+    value && !/[A-Z]/.test(value)
+      ? `The ${keyword} must contain at least one uppercase letter`
+      : null,
+  hasNumber: (keyword: string) => (value: string) =>
+    value && !/\d/.test(value) ? `The ${keyword} must contain at least one number` : null,
 };
 
 export const generateErrors = (fieldValues: any, fieldValidators: any) => {

@@ -1,10 +1,10 @@
-import { isValidEmail } from "@/src/shared/utils/validators";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import {
   Notification,
   NotificationChannel,
 } from "@/src/core/notifications/domain/models/Notification";
-import { createNotificationSchema } from "@/src/core/notifications/application/validators";
+import { CHANNEL_RULES } from "@/src/core/notifications/application/validators";
+import { generateErrors, valid } from "@/src/shared/utils/validators";
 
 export const useCreateNotificationForm = (selectedItem?: Notification) => {
   const [formData, setFormData] = useState({
@@ -14,19 +14,31 @@ export const useCreateNotificationForm = (selectedItem?: Notification) => {
       content: selectedItem?.content || "",
       recipientContactId: selectedItem?.recipientContactId || "",
     },
-    errors: {
-      channel: "",
-      title: "",
-      content: "",
-      recipientContactId: "",
-    },
-    touched: {
-      channel: false,
-      title: false,
-      content: false,
-      recipientContactId: false,
-    },
+    errors: {} as Record<string, string>,
+    touched: {} as Record<string, boolean>,
   });
+
+  const dynamicValidators = useMemo(() => {
+    const channel = formData.fields.channel as keyof typeof CHANNEL_RULES;
+    const rules = CHANNEL_RULES[channel];
+
+    return {
+      channel: [valid.required("channel")],
+      recipientContactId: [valid.required("recipient contact ID")],
+      title: [
+        valid.required("title"),
+        valid.min(rules.title.min, "title"),
+        valid.max(rules.title.max, "title"),
+      ],
+      content: [
+        valid.required("content"),
+        valid.min(rules.content.min, "content"),
+        valid.max(rules.content.max, "content"),
+      ],
+    };
+  }, [formData.fields.channel]);
+
+  const { isValid: isFormValid } = generateErrors(formData.fields, dynamicValidators);
 
   const channelOptions = [
     { value: NotificationChannel.EMAIL, label: "Email" },
@@ -34,49 +46,25 @@ export const useCreateNotificationForm = (selectedItem?: Notification) => {
     { value: NotificationChannel.PUSH, label: "Push Notification" },
   ];
 
-  const validateSingleField = useCallback(async (name: string, value: any, allFields: any) => {
-    try {
-      await createNotificationSchema.validateAt(name, { ...allFields, [name]: value });
-      return "";
-    } catch (error: any) {
-      return error.message;
-    }
-  }, []);
-
   const handleChange = async (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-
     const newFields = { ...formData.fields, [name]: value };
+
+    const { errors } = generateErrors(newFields, dynamicValidators);
+
     setFormData((prev) => ({
       ...prev,
       fields: newFields,
+      errors: errors,
       touched: { ...prev.touched, [name]: true },
-    }));
-
-    const error = await validateSingleField(name, value, newFields);
-
-    let crossFieldErrors = {};
-    if (name === "channel") {
-      const titleErr = await validateSingleField("title", newFields.title, newFields);
-      const contentErr = await validateSingleField("content", newFields.content, newFields);
-      crossFieldErrors = { title: titleErr, content: contentErr };
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      errors: {
-        ...prev.errors,
-        [name]: error,
-        ...crossFieldErrors,
-      },
     }));
   };
 
-  const isFormValid =
-    Object.values(formData.fields).every((val) => val !== "") &&
-    Object.values(formData.errors).every((err) => err === "");
+  // const isFormValid =
+  //   Object.values(formData.fields).every((val) => val !== "") &&
+  //   Object.values(formData.errors).every((err) => err === "");
 
-  return { channelOptions, handleChange, formData, isFormValid };
+  return { channelOptions, handleChange, formData, isFormValid, validators: dynamicValidators };
 };

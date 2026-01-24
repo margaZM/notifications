@@ -29,10 +29,13 @@ export const CreateNotificationForm = ({
 }: CreateNotificationFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { notification, showNotification, closeNotification } = useNotification();
-  const { channelOptions, handleChange, formData, isFormValid } =
+  const { channelOptions, handleChange, formData, isFormValid, validators } =
     useCreateNotificationForm(selectedItem);
 
   const { notifications, setNotifications } = useNotificationsStore();
+
+  const { errors, touched } = formData;
+  const { title, content, channel, recipientContactId } = formData.fields;
 
   const { createNotificationUseCase, updateNotificationUseCase } = useMemo(() => {
     const apiService = new ApiService();
@@ -51,7 +54,6 @@ export const CreateNotificationForm = ({
       updateNotificationsInStore(notification);
       closeModal("createEditNotification");
     } catch (error: any) {
-      console.log(error);
       showNotification(error.message, "error");
     } finally {
       setIsLoading(false);
@@ -66,7 +68,6 @@ export const CreateNotificationForm = ({
           ? newNotification
           : notification,
       );
-      console.log(updatedNotifications, "updatedNotifications edit");
     } else {
       updatedNotifications = [newNotification, ...notifications];
     }
@@ -77,12 +78,10 @@ export const CreateNotificationForm = ({
     try {
       setIsLoading(true);
       const notification = await updateNotificationUseCase.execute(values);
-      console.log(notification, "notification act");
       showNotification("Notification created successfully.", "success");
       updateNotificationsInStore(notification);
       closeModal("createEditNotification");
     } catch (error: any) {
-      console.log(error, "error act not");
       showNotification(error.message, "error");
     } finally {
       setIsLoading(false);
@@ -124,39 +123,47 @@ export const CreateNotificationForm = ({
         <CustomSelect
           options={channelOptions}
           onChange={handleChange}
-          value={formData.fields.channel}
-          errorMessage={formData.errors.channel}
-          isvalid={!formData.errors.channel}
+          value={channel}
+          errorMessage={touched.channel ? errors.channel : ""}
+          isvalid={!(touched.channel && errors.channel)}
           label="Channel"
           name="channel"
         />
         <CustomInput
+          id="title"
           label="Title"
           name="title"
-          value={formData.fields.title}
-          message={formData.errors.title}
+          value={title}
           type="text"
           placeholder="Notification title..."
           onChange={handleChange}
+          isvalid={!(touched.title && errors.title)}
+          message={touched.title ? errors.title : ""}
+          validators={validators.title}
         />
         <CustomTextarea
+          id="content"
           rows={2}
           label="Description"
           name="content"
-          value={formData.fields.content}
-          errorMessage={formData.errors.content}
-          isvalid={!formData.errors.content}
+          value={content}
           placeholder="Write your content message here..."
           onChange={handleChange}
+          isvalid={!content || !errors.content}
+          errorMessage={touched.content ? errors.content : ""}
+          validators={validators.content}
         />
         <CustomInput
+          id="recipientContactId"
           label="Recipient Id"
           name="recipientContactId"
-          value={formData.fields.recipientContactId}
-          message={formData.errors.recipientContactId}
+          value={recipientContactId}
           type="text"
           placeholder="Contact ID..."
           onChange={handleChange}
+          isvalid={!recipientContactId || !errors.recipientContactId}
+          message={recipientContactId && errors.recipientContactId ? errors.recipientContactId : ""}
+          validators={validators.recipientContactId}
         />
         <div className="pt-6">
           <CustomButton
