@@ -9,27 +9,25 @@ jobs:
 
       - run:
           name: Setup Credentials and Environment
-          command: |
+          command: |-
             if [ -n "$NPMRC_CONTENT" ]; then
               echo "$NPMRC_CONTENT" > .npmrc
             fi
-
-            cat > .env << EOF
-NODE_ENV="test"
-DATABASE_URL="${DATABASE_URL}"
-JWT_SECRET="${JWT_SECRET}"
-JWT_EXPIRES_IN="${JWT_EXPIRES_IN}"
-TWILIO_ACCOUNT_SID="${TWILIO_ACCOUNT_SID}"
-TWILIO_AUTH_TOKEN="${TWILIO_AUTH_TOKEN}"
-TWILIO_SERVICE_ID="${TWILIO_SERVICE_ID}"
-TWILIO_PHONE_NUMBER="${TWILIO_PHONE_NUMBER}"
-SENDGRID_API_KEY="${SENDGRID_API_KEY}"
-SENDGRID_SYSTEM_EMAIL_ADDRESS="${SENDGRID_SYSTEM_EMAIL_ADDRESS}"
-SENDGRID_BASE_TEMPLATE_ID="${SENDGRID_BASE_TEMPLATE_ID}"
-EOF
-            
+            cat > .env << 'EOF'
+            NODE_ENV="test"
+            DATABASE_URL="$DATABASE_URL"
+            JWT_SECRET="$JWT_SECRET"
+            JWT_EXPIRES_IN="$JWT_EXPIRES_IN"
+            TWILIO_ACCOUNT_SID="$TWILIO_ACCOUNT_SID"
+            TWILIO_AUTH_TOKEN="$TWILIO_AUTH_TOKEN"
+            TWILIO_SERVICE_ID="$TWILIO_SERVICE_ID"
+            TWILIO_PHONE_NUMBER="$TWILIO_PHONE_NUMBER"
+            SENDGRID_API_KEY="$SENDGRID_API_KEY"
+            SENDGRID_SYSTEM_EMAIL_ADDRESS="$SENDGRID_SYSTEM_EMAIL_ADDRESS"
+            SENDGRID_BASE_TEMPLATE_ID="$SENDGRID_BASE_TEMPLATE_ID"
+            EOF
             cp .env backend/.env.test
-            cp .env .env.test 
+            cp .env .env.test
 
       - run:
           name: Pre-clean Docker
@@ -76,4 +74,3 @@ workflows:
       - plan-release:
           requires:
             - build-and-test
-            
