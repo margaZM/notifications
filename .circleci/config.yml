@@ -52,6 +52,26 @@ jobs:
             find backend -name "lcov.info"
             # Si esto sale vacío, el volumen no está funcionando.
 
+      - run:
+          name: Forensic Debug
+          command: |
+            echo "--- 1. ¿QUIÉN SOY Y DÓNDE ESTOY? ---"
+            pwd && whoami
+
+            echo "--- 2. ¿QUÉ CONTENEDORES QUEDARON (STOPPED)? ---"
+            docker ps -a
+
+            echo "--- 3. INSPECCIONAR RUTAS INTERNAS ---"
+            # Esto nos dirá exactamente dónde cree el contenedor que está su carpeta de trabajo
+            docker inspect auth-service | grep -A 10 "Mounts"
+
+            echo "--- 4. BUSQUEDA AGRESIVA ---"
+            # Buscamos cualquier archivo .info en todo el sistema de archivos de la máquina
+            sudo find / -name "lcov.info" -not -path "*/node_modules/*" 2>/dev/null || echo "No lcov found anywhere"
+
+            echo "--- 5. LISTAR ESTRUCTURA REAL ---"
+            ls -R backend/apps
+
       - coveralls/upload:
           coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info
           flag_name: auth-service
