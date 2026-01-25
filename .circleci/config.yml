@@ -14,21 +14,17 @@ jobs:
               echo "$NPMRC_CONTENT" > .npmrc
             fi
 
-            printf 'NODE_ENV="test"\n\
-            DATABASE_URL="%s"\n\
-            JWT_SECRET="%s"\n\
-            JWT_EXPIRES_IN="%s"\n\
-            TWILIO_ACCOUNT_SID="%s"\n\
-            TWILIO_AUTH_TOKEN="%s"\n\
-            TWILIO_SERVICE_ID="%s"\n\
-            TWILIO_PHONE_NUMBER="%s"\n\
-            SENDGRID_API_KEY="%s"\n\
-            SENDGRID_SYSTEM_EMAIL_ADDRESS="%s"\n\
-            SENDGRID_BASE_TEMPLATE_ID="%s"\n' \
-            "$DATABASE_URL" "$JWT_SECRET" "$JWT_EXPIRES_IN" \
-            "$TWILIO_ACCOUNT_SID" "$TWILIO_AUTH_TOKEN" "$TWILIO_SERVICE_ID" \
-            "$TWILIO_PHONE_NUMBER" "$SENDGRID_API_KEY" \
-            "$SENDGRID_SYSTEM_EMAIL_ADDRESS" "$SENDGRID_BASE_TEMPLATE_ID" > .env
+            echo 'NODE_ENV="test"' > .env
+            echo "DATABASE_URL=\"$DATABASE_URL\"" >> .env
+            echo "JWT_SECRET=\"$JWT_SECRET\"" >> .env
+            echo "JWT_EXPIRES_IN=\"$JWT_EXPIRES_IN\"" >> .env
+            echo "TWILIO_ACCOUNT_SID=\"$TWILIO_ACCOUNT_SID\"" >> .env
+            echo "TWILIO_AUTH_TOKEN=\"$TWILIO_AUTH_TOKEN\"" >> .env
+            echo "TWILIO_SERVICE_ID=\"$TWILIO_SERVICE_ID\"" >> .env
+            echo "TWILIO_PHONE_NUMBER=\"$TWILIO_PHONE_NUMBER\"" >> .env
+            echo "SENDGRID_API_KEY=\"$SENDGRID_API_KEY\"" >> .env
+            echo "SENDGRID_SYSTEM_EMAIL_ADDRESS=\"$SENDGRID_SYSTEM_EMAIL_ADDRESS\"" >> .env
+            echo "SENDGRID_BASE_TEMPLATE_ID=\"$SENDGRID_BASE_TEMPLATE_ID\"" >> .env
 
             cp .env backend/.env.test
             cp .env .env.test
