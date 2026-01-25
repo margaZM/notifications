@@ -8,7 +8,7 @@
     "start:dev": "nest start --watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:cov": "jest --coverage --config ./test/jest-e2e.json --runInBand && coveralls < ./coverage/lcov.info",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "keywords": [],

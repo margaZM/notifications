@@ -10,7 +10,7 @@
     "docker:start:auth": "pnpm run docker:db:setup && pnpm run start:dev",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --config ./jest-e2e.config.ts --coverage --runInBand",
+    "test:cov": "jest --coverage --config ./test/jest-e2e.json --runInBand && coveralls < ./coverage/lcov.info",
     "test:e2e": "jest --config ./jest-e2e.config.ts"
   },
   "keywords": [],
