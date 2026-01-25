@@ -47,6 +47,10 @@ jobs:
             node ./up.test.js
 
       - run:
+          name: Fix Permissions for Coverage
+          command: sudo chmod -R 777 backend/apps/*/coverage-e2e
+
+      - run:
           name: Absolute Debug - List Coverage Files
           command: |
             find backend -name "lcov.info"

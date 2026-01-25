@@ -36,7 +36,7 @@ services:
     networks:
       - backend-test
     volumes:
-      - ./apps/auth/coverage-e2e:/usr/src/app/coverage-e2e
+      - ./apps/auth/coverage-e2e:/app/test/coverage
 
   contacts-service:
     command: >
@@ -58,7 +58,7 @@ services:
     networks:
       - backend-test
     volumes:
-      - ./apps/contacts/coverage-e2e:/usr/src/app/coverage-e2e
+      - ./apps/contacts/coverage-e2e:/app/test/coverage
 
   notifications-service:
     command: >
@@ -82,7 +82,7 @@ services:
     networks:
       - backend-test
     volumes:
-      - ./apps/notifications/coverage-e2e:/usr/src/app/coverage-e2e
+      - ./apps/notifications/coverage-e2e:/app/test/coverage
 
   api-gateway:
     build:
