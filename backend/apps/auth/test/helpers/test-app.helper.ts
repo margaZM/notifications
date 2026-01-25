@@ -38,32 +38,13 @@ export async function initTestApp(): Promise<TestAppContext> {
 }
 
 export async function closeTestApp(context: TestAppContext): Promise<void> {
-  const { app, database } = context;
+  const { app } = context;
 
   // await database.onModuleDestroy();
-  await app.close();
+  if (app) await app.close();
 }
 
 export async function resetTestApp(context: TestAppContext): Promise<void> {
   const { database } = context;
   await database.$transaction([database.user.deleteMany()]);
 }
-
-// async cleanDatabase() {
-// 	if (this.db) {
-// 		// El orden es importante si tienes relaciones (Foreign Keys)
-// 		await this.db.$transaction([
-// 			this.db.user.deleteMany(),
-// 			// Agrega aquí otras tablas si existen (ej. profile, post, etc.)
-// 		]);
-// 	}
-// }
-
-// const getPokemonIdFromUrl = (url: string): number | null => {
-// 	for (const pokemon of mockPokemonData) {
-// 		if (url.includes(`/pokemon/${pokemon.id}`)) {
-// 			return pokemon.id;
-// 		}
-// 	}
-// 	return null;
-// };

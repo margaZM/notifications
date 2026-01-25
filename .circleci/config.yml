@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
+
 jobs:
   build-and-test:
     machine:
@@ -42,6 +45,32 @@ jobs:
           name: Run Full Stack E2E Tests
           command: |
             node ./up.test.js
+
+      - coveralls/upload:
+          path_to_lcov: ./backend/apps/auth/coverage-e2e/lcov.info
+          flag_name: auth-service
+          parallel: true
+
+      - coveralls/upload:
+          path_to_lcov: ./backend/apps/contacts/coverage-e2e/lcov.info
+          flag_name: contacts-service
+          parallel: true
+
+      - coveralls/upload:
+          path_to_lcov: ./backend/apps/notifications/coverage-e2e/lcov.info
+          flag_name: notifications-service
+          parallel: true
+
+      - run:
+          name: Post-test Cleanup
+          command: |
+            docker compose -f backend/docker-compose.test.yml down -v
+          when: always
+
+      - run:
+          name: Finalize Coveralls
+          command: |
+            curl -k https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN -d "payload[build_num]=$CIRCLE_BUILD_NUM&payload[status]=done"
 
       - run:
           name: Post-test Cleanup

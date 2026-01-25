@@ -32,9 +32,4 @@ try {
 } catch (error) {
 	console.error('Error:', error.message);
 	process.exit(1);
-} finally {
-	execSync('docker compose -f docker-compose.test.yml down -v --remove-orphans', {
-		cwd: backendPath,
-		stdio: 'inherit',
-	});
 }

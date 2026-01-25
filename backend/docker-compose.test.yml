@@ -20,8 +20,8 @@ services:
   auth-service:
     command: >
       sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
-      npx prisma db push --accept-data-loss --schema=./node_modules/@margazm/database/dist/generated/client/schema.prisma --url=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
-      pnpm run test:e2e"
+      npx prisma db push --accept-data-loss --schema=./node_modules/@margazm/database/dist/generated/client/schema.prisma --url=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public  &&
+      pnpm jest --config ./jest-e2e.config.ts --coverage --runInBand --forceExit"
     build:
       context: ./apps/auth
       dockerfile: ./Dockerfile
@@ -35,11 +35,14 @@ services:
         condition: service_healthy
     networks:
       - backend-test
+    volumes:
+      - .:/usr/src/app
+      - ./apps/auth/coverage-e2e:/usr/src/app/apps/auth/coverage-e2e
 
   contacts-service:
     command: >
       sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
-      sleep 10 && pnpm run test:e2e"
+      sleep 10 && pnpm jest --config ./jest-e2e.config.ts --coverage --runInBand --forceExit"
     build:
       context: ./apps/contacts
       dockerfile: ./Dockerfile
@@ -55,11 +58,14 @@ services:
         condition: service_started
     networks:
       - backend-test
+    volumes:
+      - .:/usr/src/app
+      - ./apps/contacts/coverage-e2e:/usr/src/app/apps/contacts/coverage-e2e
 
   notifications-service:
     command: >
       sh -c "export DATABASE_URL=postgresql://postgres:123456@postgres-db-test:5432/postgres_test?schema=public &&
-      sleep 10 && pnpm run test:e2e"
+      sleep 10 && pnpm jest --config ./jest-e2e.config.ts --coverage --runInBand --forceExit"
     build:
       context: ./apps/notifications
       dockerfile: ./Dockerfile
@@ -77,6 +83,9 @@ services:
         condition: service_started
     networks:
       - backend-test
+    volumes:
+      - .:/usr/src/app
+      - ./apps/notifications/coverage-e2e:/usr/src/app/apps/notifications/coverage-e2e
 
   api-gateway:
     build:
