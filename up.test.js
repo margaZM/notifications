@@ -16,20 +16,16 @@ try {
 			stdio: 'inherit',
 		},
 	);
-	const lastContainerId = execSync(
-		'docker compose -f docker-compose.test.yml ps notifications-service -q',
+	execSync(
+		'docker compose -f docker-compose.test.yml up --exit-code-from notifications-service',
 		{
 			cwd: backendPath,
-			encoding: 'utf-8',
+			stdio: 'inherit',
 		},
-	).trim();
-	const exitCode = execSync(`docker wait ${lastContainerId}`, {
-		encoding: 'utf-8',
-	}).trim();
-
+	);
 	logs.kill();
-	if (exitCode !== '0') process.exit(1);
 } catch (error) {
-	console.error('Error:', error.message);
 	process.exit(1);
 }
+// NOTA: NO agregues el cleanup aquí (el "down -v"),
+// deja que CircleCI lo haga después de subir a Coveralls.

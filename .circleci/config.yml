@@ -47,7 +47,7 @@ jobs:
             node ./up.test.js
 
       - coveralls/upload:
-          coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info # Nombre correcto del parámetro
+          coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info
           flag_name: auth-service
           parallel: true
 
