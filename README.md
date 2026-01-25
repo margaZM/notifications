@@ -2,6 +2,10 @@
 
 A microservices-based application designed to manage and send notifications for authenticated users.
 
+### Badges
+
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main)
+
 ### Features
 
 #### Authentication
