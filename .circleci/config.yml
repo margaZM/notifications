@@ -12,6 +12,7 @@ jobs:
           command: |
             if [ -n "$NPMRC_CONTENT" ]; then
               echo "$NPMRC_CONTENT" > .npmrc
+              cp .npmrc backend/.npmrc
             fi
 
             echo 'NODE_ENV="test"' > .env
