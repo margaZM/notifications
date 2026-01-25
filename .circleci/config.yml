@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Run Full Stack E2E Tests
           command: |
-            node ./up_test.js
+            node ./up.test.js
 
       - run:
           name: Post-test Cleanup
