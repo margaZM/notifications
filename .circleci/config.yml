@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Pre-clean Docker
           command: |
-            docker compose -f docker-compose.test.yml down -v --remove-orphans
+            docker compose -f backend/docker-compose.test.yml down -v --remove-orphans
 
       - run:
           name: Run Full Stack E2E Tests
@@ -29,7 +29,7 @@ jobs:
 
       - run:
           name: Post-test Cleanup
-          command: docker compose -f docker-compose.test.yml down -v
+          command: docker compose -f backend/docker-compose.test.yml down -v
           when: always
 
   plan-release:
