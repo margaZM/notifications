@@ -11,7 +11,7 @@ jobs:
           name: Setup Credentials and Environment
           command: |
             if [ -n "$NPMRC_CONTENT" ]; then
-              echo "$NPMRC_CONTENT" > .npmrc
+              echo -e "$NPMRC_CONTENT" > .npmrc
               cp .npmrc backend/.npmrc
             fi
 
