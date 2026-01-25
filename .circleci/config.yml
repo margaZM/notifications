@@ -46,6 +46,14 @@ jobs:
           command: |
             node ./up.test.js
 
+      - run:
+          name: Debug Coverage Path
+          command: |
+            echo "Directorio actual:"
+            pwd
+            echo "Contenido de backend/apps (recursivo):"
+            ls -R backend/apps | grep lcov || echo "No se encontró ningún archivo lcov"
+
       - coveralls/upload:
           coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info
           flag_name: auth-service
