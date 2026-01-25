@@ -16,18 +16,20 @@ jobs:
 
             cat > .env << EOF
 NODE_ENV="test"
-DATABASE_URL="$DATABASE_URL"
-JWT_SECRET="$JWT_SECRET"
-JWT_EXPIRES_IN="$JWT_EXPIRES_IN"
-TWILIO_ACCOUNT_SID="$TWILIO_ACCOUNT_SID"
-TWILIO_AUTH_TOKEN="$TWILIO_AUTH_TOKEN"
-TWILIO_SERVICE_ID="$TWILIO_SERVICE_ID"
-TWILIO_PHONE_NUMBER="$TWILIO_PHONE_NUMBER"
-SENDGRID_API_KEY="$SENDGRID_API_KEY"
-SENDGRID_SYSTEM_EMAIL_ADDRESS="$SENDGRID_SYSTEM_EMAIL_ADDRESS"
-SENDGRID_BASE_TEMPLATE_ID="$SENDGRID_BASE_TEMPLATE_ID"
+DATABASE_URL="${DATABASE_URL}"
+JWT_SECRET="${JWT_SECRET}"
+JWT_EXPIRES_IN="${JWT_EXPIRES_IN}"
+TWILIO_ACCOUNT_SID="${TWILIO_ACCOUNT_SID}"
+TWILIO_AUTH_TOKEN="${TWILIO_AUTH_TOKEN}"
+TWILIO_SERVICE_ID="${TWILIO_SERVICE_ID}"
+TWILIO_PHONE_NUMBER="${TWILIO_PHONE_NUMBER}"
+SENDGRID_API_KEY="${SENDGRID_API_KEY}"
+SENDGRID_SYSTEM_EMAIL_ADDRESS="${SENDGRID_SYSTEM_EMAIL_ADDRESS}"
+SENDGRID_BASE_TEMPLATE_ID="${SENDGRID_BASE_TEMPLATE_ID}"
 EOF
+            
             cp .env backend/.env.test
+            cp .env .env.test 
 
       - run:
           name: Pre-clean Docker
@@ -41,7 +43,8 @@ EOF
 
       - run:
           name: Post-test Cleanup
-          command: docker compose -f backend/docker-compose.test.yml down -v
+          command: |
+            docker compose -f backend/docker-compose.test.yml down -v
           when: always
 
   plan-release:
@@ -53,11 +56,10 @@ EOF
           name: Orchestrate Release
           command: |
             SHORT_SHA=$(echo $CIRCLE_SHA1 | cut -c1-7)
-
             circleci run release plan \
               --environment-name="production" \
               --component-name="notifications-fullstack" \
-              --target-version="${SHORT_SHA}"
+              --target-version="\${SHORT_SHA}"
       - run:
           name: Mark Release Success
           command: circleci run release update --status=SUCCESS
@@ -74,3 +76,4 @@ workflows:
       - plan-release:
           requires:
             - build-and-test
+            
