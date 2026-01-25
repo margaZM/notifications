@@ -10,8 +10,11 @@ jobs:
       - run:
           name: Setup Credentials and Environment
           command: |
-            if [ -n "$NPMRC_CONTENT" ]; then
-              echo -e "$NPMRC_CONTENT" > .npmrc
+            # Create .npmrc with GitHub token
+            if [ -n "$GITHUB_TOKEN" ]; then
+              echo "@margazm:registry=https://npm.pkg.github.com" > .npmrc
+              echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> .npmrc
+              echo "node-linker=hoisted" >> .npmrc
               cp .npmrc backend/.npmrc
             fi
 
