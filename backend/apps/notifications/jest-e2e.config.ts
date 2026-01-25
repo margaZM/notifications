@@ -13,6 +13,8 @@ const config: Config = {
   moduleFileExtensions: ["js", "json", "ts"],
   collectCoverageFrom: [],
   testTimeout: 30000,
+  coverageReporters: ["text", "lcov"],
+  coverageDirectory: "./coverage-e2e",
 };
 
 export default config;
