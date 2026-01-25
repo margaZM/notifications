@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
+
 jobs:
   build-and-test:
     machine:
@@ -42,6 +45,56 @@ jobs:
           name: Run Full Stack E2E Tests
           command: |
             node ./up.test.js
+
+      - run:
+          name: Fix Permissions for Coverage
+          command: sudo chmod -R 777 backend/apps/*/coverage-e2e
+
+      - run:
+          name: Absolute Debug - List Coverage Files
+          command: |
+            find backend -name "lcov.info"
+            # Si esto sale vacío, el volumen no está funcionando.
+
+      - run:
+          name: Forensic Debug
+          command: |
+            echo "--- 1. ¿QUIÉN SOY Y DÓNDE ESTOY? ---"
+            pwd && whoami
+
+            echo "--- 2. ¿QUÉ CONTENEDORES QUEDARON (STOPPED)? ---"
+            docker ps -a
+
+            echo "--- 3. INSPECCIONAR RUTAS INTERNAS ---"
+            # Esto nos dirá exactamente dónde cree el contenedor que está su carpeta de trabajo
+            docker inspect auth-service | grep -A 10 "Mounts"
+
+            echo "--- 4. BUSQUEDA AGRESIVA ---"
+            # Buscamos cualquier archivo .info en todo el sistema de archivos de la máquina
+            sudo find / -name "lcov.info" -not -path "*/node_modules/*" 2>/dev/null || echo "No lcov found anywhere"
+
+            echo "--- 5. LISTAR ESTRUCTURA REAL ---"
+            ls -R backend/apps
+
+      - coveralls/upload:
+          coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info
+          flag_name: auth-service
+          parallel: true
+
+      - coveralls/upload:
+          coverage_file: ./backend/apps/contacts/coverage-e2e/lcov.info
+          flag_name: contacts-service
+          parallel: true
+
+      - coveralls/upload:
+          coverage_file: ./backend/apps/notifications/coverage-e2e/lcov.info
+          flag_name: notifications-service
+          parallel: true
+
+      - run:
+          name: Finalize Coveralls
+          command: |
+            curl -k https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN -d "payload[build_num]=$CIRCLE_BUILD_NUM&payload[status]=done"
 
       - run:
           name: Post-test Cleanup

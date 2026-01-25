@@ -11,30 +11,24 @@ try {
 	const logs = spawn(
 		'docker',
 		['compose', '-f', 'docker-compose.test.yml', 'logs', '-f'],
-		{
-			cwd: backendPath,
-			stdio: 'inherit',
-		},
+		{ cwd: backendPath, stdio: 'inherit' },
 	);
 	const lastContainerId = execSync(
 		'docker compose -f docker-compose.test.yml ps notifications-service -q',
-		{
-			cwd: backendPath,
-			encoding: 'utf-8',
-		},
+		{ cwd: backendPath, encoding: 'utf-8' },
 	).trim();
+
+	console.log(`⏳ Esperando al contenedor: ${lastContainerId}`);
 	const exitCode = execSync(`docker wait ${lastContainerId}`, {
 		encoding: 'utf-8',
 	}).trim();
-
 	logs.kill();
+	execSync('docker compose -f docker-compose.test.yml stop', {
+		cwd: backendPath,
+		stdio: 'inherit',
+	});
 	if (exitCode !== '0') process.exit(1);
 } catch (error) {
 	console.error('Error:', error.message);
 	process.exit(1);
-} finally {
-	execSync('docker compose -f docker-compose.test.yml down -v --remove-orphans', {
-		cwd: backendPath,
-		stdio: 'inherit',
-	});
 }

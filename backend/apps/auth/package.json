@@ -10,7 +10,8 @@
     "docker:start:auth": "pnpm run docker:db:setup && pnpm run start:dev",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:cov": "jest --coverage --config ./test/jest-e2e.json --runInBand",
+    "test:e2e": "jest --config ./jest-e2e.config.ts"
   },
   "keywords": [],
   "author": "",
