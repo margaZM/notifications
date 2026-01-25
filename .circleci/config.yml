@@ -47,7 +47,7 @@ jobs:
             node ./up.test.js
 
       - run:
-          name: Absolute Debug
+          name: Absolute Debug - List Coverage Files
           command: |
             find backend -name "lcov.info"
             # Si esto sale vacío, el volumen no está funcionando.
