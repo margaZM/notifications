@@ -47,17 +47,17 @@ jobs:
             node ./up.test.js
 
       - coveralls/upload:
-          path_to_lcov: ./backend/apps/auth/coverage-e2e/lcov.info
+          coverage_file: ./backend/apps/auth/coverage-e2e/lcov.info # Nombre correcto del parámetro
           flag_name: auth-service
           parallel: true
 
       - coveralls/upload:
-          path_to_lcov: ./backend/apps/contacts/coverage-e2e/lcov.info
+          coverage_file: ./backend/apps/contacts/coverage-e2e/lcov.info
           flag_name: contacts-service
           parallel: true
 
       - coveralls/upload:
-          path_to_lcov: ./backend/apps/notifications/coverage-e2e/lcov.info
+          coverage_file: ./backend/apps/notifications/coverage-e2e/lcov.info
           flag_name: notifications-service
           parallel: true
 
