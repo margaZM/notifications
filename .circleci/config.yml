@@ -9,11 +9,13 @@ jobs:
 
       - run:
           name: Setup Credentials and Environment
-          command: |-
+          command: |
             if [ -n "$NPMRC_CONTENT" ]; then
               echo "$NPMRC_CONTENT" > .npmrc
             fi
-            cat > .env << 'EOF'
+
+            # Escapamos el << con una barra invertida para que CircleCI no crea que es YAML
+            cat > .env \<< 'EOF'
             NODE_ENV="test"
             DATABASE_URL="$DATABASE_URL"
             JWT_SECRET="$JWT_SECRET"
@@ -26,6 +28,7 @@ jobs:
             SENDGRID_SYSTEM_EMAIL_ADDRESS="$SENDGRID_SYSTEM_EMAIL_ADDRESS"
             SENDGRID_BASE_TEMPLATE_ID="$SENDGRID_BASE_TEMPLATE_ID"
             EOF
+
             cp .env backend/.env.test
             cp .env .env.test
 
@@ -54,6 +57,7 @@ jobs:
           name: Orchestrate Release
           command: |
             SHORT_SHA=$(echo $CIRCLE_SHA1 | cut -c1-7)
+            # Escapamos también el $ del target-version para evitar errores de parseo
             circleci run release plan \
               --environment-name="production" \
               --component-name="notifications-fullstack" \
