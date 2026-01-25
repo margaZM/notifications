@@ -5,6 +5,7 @@ A microservices-based application designed to manage and send notifications for 
 ### Badges
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/margaZM/notifications/badge.svg?branch=circleci-project-setup)](https://coveralls.io/github/margaZM/notifications?branch=circleci-project-setup)
 
 ### Features
 
