@@ -1,5 +1,5 @@
-import * as yup from "yup";
 import { NotificationChannel, NotificationStatus } from "../../domain/models/Notification";
+import { generateErrors, valid } from "@/src/shared/utils/validators";
 
 export const CHANNEL_RULES = {
   EMAIL: { title: { min: 8, max: 50 }, content: { min: 8, max: 400 } },
@@ -7,52 +7,74 @@ export const CHANNEL_RULES = {
   PUSH: { title: { min: 6, max: 30 }, content: { min: 6, max: 80 } },
 } as const;
 
-enum FieldType {
-  title = "title",
-  content = "content",
-}
+export const validateNotificationData = (data: any): string | null => {
+  const channel = data.channel as keyof typeof CHANNEL_RULES;
 
-export const getFieldRules = (field: FieldType, channel: NotificationChannel) => {
+  if (!channel || !CHANNEL_RULES[channel]) {
+    return "The channel is required and must be valid";
+  }
+
   const rules = CHANNEL_RULES[channel];
-  return yup.string().min(rules[field].min).max(rules[field].max);
+
+  const validators = {
+    channel: [valid.required("channel")],
+    contactId: [valid.required("contact")],
+    title: [
+      valid.required("title"),
+      valid.min(rules.title.min, "title"),
+      valid.max(rules.title.max, "title"),
+    ],
+    content: [
+      valid.required("content"),
+      valid.min(rules.content.min, "content"),
+      valid.max(rules.content.max, "content"),
+    ],
+  };
+
+  const { isValid, errors } = generateErrors(data, validators);
+
+  if (!isValid) {
+    const firstKey = Object.keys(errors)[0];
+    return errors[firstKey];
+  }
+
+  return null;
 };
 
-export const createNotificationSchema = yup.object({
-  title: yup
-    .string()
-    .when("channel", ([channel], schema) => {
-      return channel ? getFieldRules(FieldType.title, channel as NotificationChannel) : schema;
-    })
-    .required(),
-  content: yup
-    .string()
-    .when("channel", ([channel], schema) => {
-      return channel ? getFieldRules(FieldType.content, channel as NotificationChannel) : schema;
-    })
-    .required(),
-  recipientContactId: yup.string().required(),
-  channel: yup.string().oneOf(Object.values(NotificationChannel)).required(),
-});
+export const validateUpdateNotification = (data: any): string | null => {
+  const channel = data.channel as keyof typeof CHANNEL_RULES;
 
-export const updateNotificationShema = yup.object({
-  title: yup
-    .string()
-    .when("channel", ([channel], schema) => {
-      return channel ? getFieldRules(FieldType.title, channel as NotificationChannel) : schema;
-    })
-    .required(),
-  content: yup
-    .string()
-    .when("channel", ([channel], schema) => {
-      return channel ? getFieldRules(FieldType.content, channel as NotificationChannel) : schema;
-    })
-    .required(),
-  status: yup
-    .mixed<NotificationStatus>()
-    .oneOf(Object.keys(NotificationStatus) as NotificationStatus[])
-    .required(),
-  sentAt: yup.date().optional(),
-  recipientContactId: yup.string().required(),
-  notificationId: yup.string().required(),
-  channel: yup.string().oneOf(Object.values(NotificationChannel)).required(),
-});
+  if (!data.notificationId) return "The notificationId is required";
+  if (!channel) return "The channel is required";
+
+  const rules = CHANNEL_RULES[channel];
+
+  const validators = {
+    notificationId: [valid.required("notificationId")],
+    recipientContactId: [valid.required("recipientContactId")],
+    channel: [
+      valid.required("channel"),
+      valid.oneOf(Object.values(NotificationChannel), "channel"),
+    ],
+    status: [valid.required("status"), valid.oneOf(Object.keys(NotificationStatus), "status")],
+    title: [
+      valid.required("title"),
+      valid.min(rules.title.min, "title"),
+      valid.max(rules.title.max, "title"),
+    ],
+    content: [
+      valid.required("content"),
+      valid.min(rules.content.min, "content"),
+      valid.max(rules.content.max, "content"),
+    ],
+  };
+
+  const { isValid, errors } = generateErrors(data, validators);
+
+  if (!isValid) {
+    const firstFieldWithError = Object.keys(errors)[0];
+    return errors[firstFieldWithError];
+  }
+
+  return null;
+};
