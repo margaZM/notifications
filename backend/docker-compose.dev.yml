@@ -26,6 +26,8 @@ services:
       target: development
       secrets:
         - npmrc
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@postgres-db:5432/postgres_db?schema=public
     command: pnpm run docker:start:auth
     env_file: .env
     depends_on:

@@ -14,17 +14,22 @@ export class SendGridEmailSenderStrategy implements NotificationSender {
   private readonly templateId: string;
 
   constructor(
-    private readonly configService: ConfigService,
     private readonly sendGridService: SendGridService,
-  ) {
-    const templateID = this.configService.get<string>("SENDGRID_BASE_TEMPLATE_ID");
-    if (!templateID) {
-      throw new Error("SENDGRID_BASE_TEMPLATE_ID not found in environment");
-    }
-    this.templateId = templateID;
-  }
+    private readonly configService: ConfigService,
+  ) {}
 
   async send(notification: NotificationSenderInput): Promise<NotificationSenderResponse> {
+    const templateID = this.configService.get<string>("SENDGRID_BASE_TEMPLATE_ID");
+    if (!templateID) {
+      this.logger.error("SENDGRID_BASE_TEMPLATE_ID not found in environment");
+      return {
+        status: NotificationStatus.FAILED,
+        errorCode: 400,
+        sendAt: new Date(),
+        errorMessage: "Internal configuration error: Missing Template ID",
+      };
+    }
+
     if (!notification.email) {
       return {
         status: NotificationStatus.FAILED,
@@ -37,7 +42,7 @@ export class SendGridEmailSenderStrategy implements NotificationSender {
     try {
       this.logger.log(`Sending email to: ${notification.email}`);
 
-      await this.sendGridService.sendDynamicEmail(notification.email, this.templateId, {
+      await this.sendGridService.sendEmail(notification.email, this.templateId, {
         subject: notification.title,
         body: notification.content,
       });

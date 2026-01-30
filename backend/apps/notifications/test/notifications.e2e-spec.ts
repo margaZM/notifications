@@ -1,12 +1,15 @@
 import { INestApplication } from "@nestjs/common";
 import { initTestApp, closeTestApp, resetTestApp, TestAppContext } from "./helpers/test-app.helper";
-import { Contact, User } from "@margazm/database";
+import { Contact, NotificationChannel, NotificationStatus, User } from "@margazm/database";
 import { NotificationsController } from "../src/controllers/notifications.controller";
 import {
   mockEmailNotification,
+  mockNotificationSenderFailedResponse,
   mockPushNotification,
   mockSmsNotification,
 } from "./mocks/test-app.mocks";
+import { TwilioSmsSenderStrategy } from "../src/services/strategies/twilio-sms.strategy";
+import { SendGridEmailSenderStrategy } from "../src/services/strategies/sendgrid-email.strategy";
 
 describe("notificationsController (e2e)", () => {
   let testContext: TestAppContext;
@@ -26,6 +29,7 @@ describe("notificationsController (e2e)", () => {
   });
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const data = await resetTestApp(testContext);
     contact = data.contact;
     author = data.user;
@@ -109,39 +113,53 @@ describe("notificationsController (e2e)", () => {
         expect(error.statusCode || error.error.statusCode).toBe(400);
       }
     });
+
+    it("should return error if strategy fails", async () => {
+      try {
+        const smsStrategy = app.get(TwilioSmsSenderStrategy);
+        jest.spyOn(smsStrategy, "send").mockRejectedValueOnce(new Error("Provider Down"));
+        await notificationsController.create({
+          ...mockSmsNotification,
+          recipientContactId: contact.contactId,
+          authorId: contact.authorId,
+        });
+      } catch (error) {
+        expect(error).toBeDefined();
+        expect(error.statusCode || error.error.statusCode).toBe(400);
+      }
+    });
   });
 
   describe("PATCH notifications/", () => {
     it("should update a notification successfully if it not sent", async () => {
-      //In sms notification always fail when phone number is not real
+      const emailStrategy = app.get(SendGridEmailSenderStrategy);
+      const emailSpy = jest
+        .spyOn(emailStrategy, "send")
+        .mockResolvedValueOnce(mockNotificationSenderFailedResponse);
+
       const created = await notificationsController.create({
-        ...mockSmsNotification,
+        ...mockEmailNotification,
         recipientContactId: contact.contactId,
         authorId: author.userId,
       });
+
+      expect(emailSpy).toHaveBeenCalledTimes(1);
 
       const result = await notificationsController.update({
-        ...mockSmsNotification,
+        ...mockEmailNotification,
         notificationId: created.notificationId,
         recipientContactId: contact.contactId,
-        title: "Updated Title",
-        content: "Updated Content",
+        title: "Updated Title Notification",
+        content: "Updated Content Notification",
         authorId: author.userId,
-        sentAt: created.sentAt,
         status: created.status,
+        sentAt: created.sentAt,
       });
 
-      expect(result).toBeDefined();
-      expect(result.notificationId).toBe(created.notificationId);
-
-      expect(result.recipientContactId).toBe(contact.contactId);
-      expect(result.title).toBe("Updated Title");
-
-      const stored = await notificationsController.getById({
-        notificationId: created.notificationId,
-        authorId: author.userId,
-      });
-      expect(stored.recipientContactId).toBe(contact.contactId);
+      expect(emailSpy).toHaveBeenCalledTimes(2);
+      expect(result.status).toBe(NotificationStatus.SENT);
+      expect(result.title).toBe("Updated Title Notification");
+      expect(result.content).toBe("Updated Content Notification");
     });
 
     it("should return an error if notification is sent", async () => {

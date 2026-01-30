@@ -40,7 +40,6 @@ export async function initTestApp(): Promise<TestAppContext> {
 export async function closeTestApp(context: TestAppContext): Promise<void> {
   const { app } = context;
 
-  // await database.onModuleDestroy();
   if (app) await app.close();
 }
 

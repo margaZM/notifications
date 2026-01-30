@@ -39,7 +39,6 @@ export class AuthService {
     try {
       token = await this.tokenGenerator.generate(userRegistered.userId);
     } catch (e) {
-      console.error("Error generating JWT token:", e);
       throw new RpcException({
         message: "Authentication failed due to server error.",
         statusCode: 500,
@@ -74,7 +73,6 @@ export class AuthService {
     try {
       token = await this.tokenGenerator.generate(userRegistered.userId);
     } catch (e) {
-      console.error("Error generating JWT token:", e);
       throw new RpcException({
         message: "Authentication failed due to server error.",
         statusCode: 500,

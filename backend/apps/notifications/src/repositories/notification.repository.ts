@@ -9,7 +9,6 @@ import {
 import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "@margazm/database";
 
-@Injectable()
 export class NotificationRepository implements INotificationRepository {
   constructor(private prisma: DatabaseService) {}
 

@@ -29,7 +29,7 @@ import { NotificationController } from "./modules/notifications/notification.con
         name: AUTH_SERVICE,
         transport: Transport.TCP,
         options: {
-          // host: "auth-service",
+          host: "auth-service",
           port: SERVICES_CONFIG.AUTH.PORT,
         },
       },

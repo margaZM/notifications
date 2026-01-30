@@ -6,6 +6,7 @@ A microservices-based application designed to manage and send notifications for 
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/EtZ5C4veuuhdPKvTD8Skwr/Gc4Ys21jG496ij23we4VEj/tree/main)
 [![Coverage Status](https://coveralls.io/repos/github/margaZM/notifications/badge.svg?branch=circleci-project-setup)](https://coveralls.io/github/margaZM/notifications?branch=circleci-project-setup)
+[![Demo Video](https://img.shields.io/badge/Demo-Video-red?style=for-the-badge&logo=google-drive&logoColor=white)](https://drive.google.com/file/d/1xadqJSk4TvPsuzPUNP2x0kxDZA2ocigm/view?usp=sharing)
 
 ### Features
 
@@ -24,6 +25,12 @@ A microservices-based application designed to manage and send notifications for 
 - Lifecycle: Full CRUD operations (Create, Update, Read, Delete) for notifications.
 - Multi-channel: Designed to handle different notification channels based on contact data.
 
+#### Shared Libraries
+
+Centralized Database & Schemas(@margazm/database): Centralizes the Prisma schema and database client. Ensures that any changes to the data model are instantly replicated across all microservices.
+
+Common Utilities(@margazm/common): The configuration core of the ecosystem. It centralizes constants, port configurations for the API Gateway, service names, and common types, avoiding code duplication (DRY) and connection errors due to inconsistencies.
+
 ## Pre-Requisites
 
 - Docker & Docker Compose: Configured to run without sudo permissions.
@@ -35,7 +42,7 @@ A microservices-based application designed to manage and send notifications for 
 To start the entire ecosystem (Frontend, Gateway, and Microservices), run:
 
 ```
-node ./up_dev.js
+node ./up.dev.js
 ```
 
 The application will be available at:
@@ -49,7 +56,7 @@ API Gateway (Swagger docs): http://localhost:3000/docs
 To execute the E2E test suite across all microservices:
 
 ```
-node ./up_test.js
+node ./up.test.js
 ```
 
 ## Techs
@@ -71,7 +78,7 @@ node ./up_test.js
 ## Areas to improve
 
 - Implementation of Unit and Integration tests using React Testing Library/Cypress.
-- Complete the UI for creating/editing contacts (currently available via API).
+- Complete the UI for creating/editing contacts (currently available via API) and logout users.
 - Configure automated pipelines for cloud deployment.
 
 ## Env vars should be defined

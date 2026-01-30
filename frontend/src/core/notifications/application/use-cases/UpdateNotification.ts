@@ -1,17 +1,16 @@
-import { ValidationError } from "yup";
+import { ValidationError } from "./../../../shared/domain/errors/ValidationError";
 import { UpdateNotificationDto } from "../../infrastructure/dtos/UpdateNotificationDto";
 import { INotificationRepository } from "../repositories/INotificationRepository";
-import { updateNotificationShema } from "../validators";
+import { validateUpdateNotification } from "../validators";
 
 export class UpdateNotificationUseCase {
   constructor(private notificationRepository: INotificationRepository) {}
 
   async execute(data: UpdateNotificationDto) {
-    try {
-      const validatedData = await updateNotificationShema.validate(data, { abortEarly: false });
-      return await this.notificationRepository.updateNotification(validatedData);
-    } catch (err: any) {
-      throw new ValidationError(err.errors?.join(", ") || err.message);
+    const errorMessage = validateUpdateNotification(data);
+    if (errorMessage) {
+      throw new ValidationError(errorMessage);
     }
+    return await this.notificationRepository.createNotification(data);
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import {
   Notification,
   NotificationChannel,
@@ -9,7 +9,7 @@ import { generateErrors, valid } from "@/src/shared/utils/validators";
 export const useCreateNotificationForm = (selectedItem?: Notification) => {
   const [formData, setFormData] = useState({
     fields: {
-      channel: NotificationChannel.EMAIL,
+      channel: selectedItem?.channel || NotificationChannel.EMAIL,
       title: selectedItem?.title || "",
       content: selectedItem?.content || "",
       recipientContactId: selectedItem?.recipientContactId || "",

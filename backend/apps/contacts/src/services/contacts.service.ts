@@ -21,7 +21,7 @@ export class ContactsService {
     if (emailExists || phoneNumberExists) {
       throw new RpcException({
         message: `${emailExists ? "Email" : "Phone number"} already exists.`,
-        statusCode: 409,
+        statusCode: 400,
       });
     }
 

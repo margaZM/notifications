@@ -28,7 +28,7 @@ export class PushNotificationSenderStrategy implements NotificationSender {
     try {
       this.logger.log(`Sending push notification: ${deviceToken}`);
 
-      await this.pushService.sendToDevice(deviceToken, notification.title, notification.content);
+      await this.pushService.sendPush(deviceToken, notification.title, notification.content);
 
       return {
         status: NotificationStatus.SENT,
