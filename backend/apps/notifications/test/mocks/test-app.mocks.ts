@@ -1,4 +1,4 @@
-import { NotificationChannel } from "@margazm/database";
+import { NotificationChannel, NotificationStatus } from "@margazm/database";
 
 export const mockValidUser = {
   email: "testauthor@example.com",
@@ -29,4 +29,23 @@ export const mockSmsNotification = {
 export const mockPushNotification = {
   ...mockBaseNotification,
   channel: NotificationChannel.PUSH,
+};
+
+export const mockContactCreatedResponse = {
+  contactId: "uuid-contact",
+  email: "testrecipient@example.com",
+  phoneNumber: "123456789",
+  deviceToken: "03df25c845d460bcdad7802d2vf6fc1dfde97283bf75cc993eb6dca835ea2e2f",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+export const mockNotificationSenderSuccessResponse = {
+  status: NotificationStatus.SENT,
+  sendAt: new Date(),
+};
+
+export const mockNotificationSenderFailedResponse = {
+  status: NotificationStatus.FAILED,
+  sendAt: new Date(),
 };

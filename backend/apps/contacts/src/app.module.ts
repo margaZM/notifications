@@ -5,6 +5,7 @@ import { ConfigModule } from "@nestjs/config";
 import { CONTACTS_REPOSITORY_PORT } from "./app.constants";
 import { ContactRepository } from "./repositories/contact.repository";
 import { DatabaseModule } from "./database/database.module";
+import { DatabaseService } from "@margazm/database";
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,7 +18,8 @@ import { DatabaseModule } from "./database/database.module";
     ContactsService,
     {
       provide: CONTACTS_REPOSITORY_PORT,
-      useClass: ContactRepository,
+      useFactory: (prisma: DatabaseService) => new ContactRepository(prisma),
+      inject: [DatabaseService],
     },
   ],
   exports: [CONTACTS_REPOSITORY_PORT],

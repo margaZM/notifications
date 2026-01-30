@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {
   CreateNotificationDto,
   DeleteNotificationDto,
@@ -61,7 +55,6 @@ export class NotificationsService {
         content: data.content,
       });
     } catch (error) {
-      console.error(`Error: ${error.message}`);
       return await this.notificationRepository.updateNotification({
         notificationId: initialNotification.notificationId,
         authorId: data.authorId,

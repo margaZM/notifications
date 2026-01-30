@@ -5,6 +5,13 @@ import { Contact, DatabaseService, User } from "@margazm/database";
 import { CONTACTS_SERVICE } from "@margazm/common";
 import { of } from "rxjs";
 import { mockValidContact, mockValidUser } from "../../test/mocks/test-app.mocks";
+import { SendGridEmailSenderStrategy } from "../../src/services/strategies/sendgrid-email.strategy";
+import { TwilioSmsSenderStrategy } from "../../src/services/strategies/twilio-sms.strategy";
+import { PushNotificationSenderStrategy } from "../../src/services/strategies/push.strategy";
+import {
+  mockContactCreatedResponse,
+  mockNotificationSenderSuccessResponse,
+} from "../../test/mocks/test-app.mocks";
 
 export interface TestAppContext {
   app: INestApplication;
@@ -17,16 +24,19 @@ export async function initTestApp(): Promise<TestAppContext> {
   })
     .overrideProvider(CONTACTS_SERVICE)
     .useValue({
-      send: jest.fn().mockImplementation(() =>
-        of({
-          contactId: "uuid-contact",
-          email: "testrecipient@example.com",
-          phoneNumber: "123456789",
-          deviceToken: "03df25c845d460bcdad7802d2vf6fc1dfde97283bf75cc993eb6dca835ea2e2f",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }),
-      ),
+      send: jest.fn().mockImplementation(() => of(mockContactCreatedResponse)),
+    })
+    .overrideProvider(SendGridEmailSenderStrategy)
+    .useValue({
+      send: jest.fn().mockResolvedValue(mockNotificationSenderSuccessResponse),
+    })
+    .overrideProvider(TwilioSmsSenderStrategy)
+    .useValue({
+      send: jest.fn().mockResolvedValue(mockNotificationSenderSuccessResponse),
+    })
+    .overrideProvider(PushNotificationSenderStrategy)
+    .useValue({
+      send: jest.fn().mockResolvedValue(mockNotificationSenderSuccessResponse),
     })
     .compile();
 

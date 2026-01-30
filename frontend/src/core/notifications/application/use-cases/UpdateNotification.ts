@@ -1,4 +1,4 @@
-import { ValidationError } from "yup";
+import { ValidationError } from "./../../../shared/domain/errors/ValidationError";
 import { UpdateNotificationDto } from "../../infrastructure/dtos/UpdateNotificationDto";
 import { INotificationRepository } from "../repositories/INotificationRepository";
 import { validateUpdateNotification } from "../validators";

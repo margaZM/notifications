@@ -1,18 +1,12 @@
-import {
-  Injectable,
-  Logger,
-  InternalServerErrorException,
-  BadRequestException,
-} from "@nestjs/common";
+import { Logger, InternalServerErrorException, BadRequestException } from "@nestjs/common";
 import * as admin from "firebase-admin";
 
-@Injectable()
 export class PushService {
   private readonly logger = new Logger(PushService.name);
 
   constructor() {}
 
-  async sendToDevice(token: string, title: string, body: string): Promise<string> {
+  async sendPush(token: string, title: string, body: string): Promise<string> {
     try {
       if (!token || !title) {
         throw new BadRequestException("Device token and title are required.");

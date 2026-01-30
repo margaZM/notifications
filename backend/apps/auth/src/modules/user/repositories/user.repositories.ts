@@ -1,11 +1,9 @@
 import { IUserRepository, UserEntity } from "./user-repository.interface";
 import { RegisterUserDto } from "../../auth/dtos/RegisterUserDto";
-import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "@margazm/database";
 
-@Injectable()
 export class UserRepository implements IUserRepository {
-  constructor(private prisma: DatabaseService) {}
+  constructor(private readonly prisma: DatabaseService) {}
 
   registerUser(data: RegisterUserDto): Promise<UserEntity> {
     return this.prisma.user.create({ data });

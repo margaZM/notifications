@@ -1,9 +1,7 @@
 import { IContactRepository, ContactEntity } from "./contact-repository.interface";
 import { RegisterContactDto } from "../dtos/RegisterContactDto";
-import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "@margazm/database";
 
-@Injectable()
 export class ContactRepository implements IContactRepository {
   constructor(private prisma: DatabaseService) {}
 

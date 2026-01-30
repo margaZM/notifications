@@ -3,7 +3,7 @@ import { NotificationsController } from "./controllers/notifications.controller"
 import { NotificationsService } from "./services/notification.service";
 import { DatabaseModule } from "./database/database.module";
 import { NotificationRepository } from "./repositories/notification.repository";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NOTIFICATIONS_REPOSITORY_PORT } from "./app.constants";
 import { SendGridService } from "./services/sendgrid.service";
 import { TwilioService } from "./services/twilio.service";
@@ -14,6 +14,7 @@ import { PushNotificationSenderStrategy } from "./services/strategies/push.strat
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { CONTACTS_SERVICE, SERVICES_CONFIG } from "@margazm/common";
 import { NotificationSenderService } from "./services/notification-sender.service";
+import { DatabaseService } from "@margazm/database";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationSenderService } from "./services/notification-sender.servic
       {
         name: CONTACTS_SERVICE,
         imports: [ConfigModule],
+        inject: [ConfigService],
         useFactory: async () => ({
           transport: Transport.TCP,
           options: {
@@ -38,18 +40,44 @@ import { NotificationSenderService } from "./services/notification-sender.servic
   controllers: [NotificationsController],
   providers: [
     NotificationsService,
+    NotificationSenderService,
     {
       provide: NOTIFICATIONS_REPOSITORY_PORT,
-      useClass: NotificationRepository,
+      useFactory: (prisma: DatabaseService) => new NotificationRepository(prisma),
+      inject: [DatabaseService],
     },
-    SendGridService,
-    TwilioService,
-    PushService,
-    SendGridEmailSenderStrategy,
-    TwilioSmsSenderStrategy,
-    PushNotificationSenderStrategy,
-    NotificationSenderService,
+    {
+      provide: SendGridService,
+      useFactory: (config: ConfigService) => new SendGridService(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: TwilioService,
+      useFactory: (config: ConfigService) => new TwilioService(config),
+      inject: [ConfigService],
+    },
+    {
+      provide: PushService,
+      useFactory: () => new PushService(),
+      inject: [],
+    },
+    {
+      provide: SendGridEmailSenderStrategy,
+      useFactory: (config: ConfigService, sendgrid: SendGridService) =>
+        new SendGridEmailSenderStrategy(sendgrid, config),
+      inject: [ConfigService, SendGridService],
+    },
+    {
+      provide: TwilioSmsSenderStrategy,
+      useFactory: (twilio: TwilioService) => new TwilioSmsSenderStrategy(twilio),
+      inject: [TwilioService],
+    },
+    {
+      provide: PushNotificationSenderStrategy,
+      useFactory: (push: PushService) => new PushNotificationSenderStrategy(push),
+      inject: [PushService],
+    },
   ],
-  exports: [NOTIFICATIONS_REPOSITORY_PORT, DatabaseModule],
+  exports: [NOTIFICATIONS_REPOSITORY_PORT],
 })
 export class NotificationsModule {}

@@ -2,7 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import sgMail from "@sendgrid/mail";
 
-@Injectable()
 export class SendGridService {
   private readonly logger = new Logger(SendGridService.name);
   private readonly fromEmail: string;
@@ -20,7 +19,7 @@ export class SendGridService {
     sgMail.setApiKey(apiKey);
   }
 
-  async sendDynamicEmail(to: string, templateId: string, data: Record<string, any>) {
+  async sendEmail(to: string, templateId: string, data: Record<string, any>) {
     try {
       return await sgMail.send({
         to,

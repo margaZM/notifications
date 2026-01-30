@@ -8,6 +8,7 @@ import {
   NotificationSenderInput,
 } from "src/dtos/NotificationSenderDto";
 import { NotificationSender } from "src/ports/notification-sender.interface";
+import { RpcException } from "@nestjs/microservices";
 
 @Injectable()
 export class NotificationSenderService {
@@ -33,18 +34,16 @@ export class NotificationSenderService {
     const strategy = this.strategies.get(channel);
 
     if (!strategy) {
-      this.logger.error(`No strategy found for channel ${channel}`);
-      return {
-        status: NotificationStatus.FAILED,
-        errorMessage: `Channel not supported: ${channel}`,
-        sendAt: new Date(),
-      };
+      throw new RpcException({
+        message: `Channel not supported: ${channel}`,
+        statusCode: 400,
+      });
     }
 
     try {
-      // this.logger.log(
-      // 	`Start ${channel} notification sending process with input: ${JSON.stringify(input)}`,
-      // );
+      this.logger.log(
+        `Start ${channel} notification sending process with input: ${JSON.stringify(input)}`,
+      );
       const result = await strategy.send(input);
       return result;
     } catch (error) {
