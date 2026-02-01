@@ -12,6 +12,8 @@ import {
   mockContactCreatedResponse,
   mockNotificationSenderSuccessResponse,
 } from "../../test/mocks/test-app.mocks";
+import { HASHER_PORT } from "../../src/app.constants";
+import { HasherService } from "../../src/services/hasher.service";
 
 export interface TestAppContext {
   app: INestApplication;
@@ -21,6 +23,7 @@ export interface TestAppContext {
 export async function initTestApp(): Promise<TestAppContext> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [NotificationsModule],
+    providers: [{ provide: HASHER_PORT, useClass: HasherService }],
   })
     .overrideProvider(CONTACTS_SERVICE)
     .useValue({
@@ -58,8 +61,9 @@ export async function closeTestApp(context: TestAppContext): Promise<void> {
 export async function resetTestApp(
   context: TestAppContext,
 ): Promise<{ contact: Contact; user: User }> {
-  const { database } = context;
+  const { database, app } = context;
 
+  await database.notification.deleteMany();
   await database.contact.deleteMany();
   await database.user.deleteMany();
 

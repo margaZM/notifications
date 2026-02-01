@@ -1,12 +1,13 @@
 import { INestApplication } from "@nestjs/common";
 import { initTestApp, closeTestApp, resetTestApp, TestAppContext } from "./helpers/test-app.helper";
-import { Contact, NotificationChannel, NotificationStatus, User } from "@margazm/database";
+import { Contact, NotificationStatus, User } from "@margazm/database";
 import { NotificationsController } from "../src/controllers/notifications.controller";
 import {
   mockEmailNotification,
   mockNotificationSenderFailedResponse,
   mockPushNotification,
   mockSmsNotification,
+  mockNotificationSenderSuccessResponse,
 } from "./mocks/test-app.mocks";
 import { TwilioSmsSenderStrategy } from "../src/services/strategies/twilio-sms.strategy";
 import { SendGridEmailSenderStrategy } from "../src/services/strategies/sendgrid-email.strategy";
@@ -40,7 +41,7 @@ describe("notificationsController (e2e)", () => {
       const result = await notificationsController.create({
         ...mockEmailNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
 
       expect(result).toBeDefined();
@@ -51,9 +52,8 @@ describe("notificationsController (e2e)", () => {
       const result = await notificationsController.create({
         ...mockSmsNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
-
       expect(result).toBeDefined();
       expect(result.notificationId).toBeDefined();
     });
@@ -62,9 +62,8 @@ describe("notificationsController (e2e)", () => {
       const result = await notificationsController.create({
         ...mockPushNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
-
       expect(result).toBeDefined();
       expect(result.notificationId).toBeDefined();
     });
@@ -76,7 +75,7 @@ describe("notificationsController (e2e)", () => {
           title: mockPushNotification.title.substring(0, 3),
           content: mockPushNotification.content.substring(0, 3),
           recipientContactId: contact.contactId,
-          authorId: contact.authorId,
+          authorId: author.userId,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -91,7 +90,7 @@ describe("notificationsController (e2e)", () => {
           title: mockEmailNotification.title.substring(0, 3),
           content: mockEmailNotification.content.substring(0, 3),
           recipientContactId: contact.contactId,
-          authorId: contact.authorId,
+          authorId: author.userId,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -106,7 +105,7 @@ describe("notificationsController (e2e)", () => {
           title: mockSmsNotification.title.substring(0, 3),
           content: mockSmsNotification.content.substring(0, 3),
           recipientContactId: contact.contactId,
-          authorId: contact.authorId,
+          authorId: author.userId,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -121,7 +120,7 @@ describe("notificationsController (e2e)", () => {
         await notificationsController.create({
           ...mockSmsNotification,
           recipientContactId: contact.contactId,
-          authorId: contact.authorId,
+          authorId: author.userId,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -133,9 +132,10 @@ describe("notificationsController (e2e)", () => {
   describe("PATCH notifications/", () => {
     it("should update a notification successfully if it not sent", async () => {
       const emailStrategy = app.get(SendGridEmailSenderStrategy);
-      const emailSpy = jest
+      jest
         .spyOn(emailStrategy, "send")
-        .mockResolvedValueOnce(mockNotificationSenderFailedResponse);
+        .mockResolvedValueOnce(mockNotificationSenderFailedResponse)
+        .mockResolvedValueOnce(mockNotificationSenderSuccessResponse);
 
       const created = await notificationsController.create({
         ...mockEmailNotification,
@@ -143,7 +143,9 @@ describe("notificationsController (e2e)", () => {
         authorId: author.userId,
       });
 
-      expect(emailSpy).toHaveBeenCalledTimes(1);
+      expect(created.status).toBe(NotificationStatus.FAILED);
+
+      console.log("Created Notification:", created);
 
       const result = await notificationsController.update({
         ...mockEmailNotification,
@@ -151,18 +153,18 @@ describe("notificationsController (e2e)", () => {
         recipientContactId: contact.contactId,
         title: "Updated Title Notification",
         content: "Updated Content Notification",
-        authorId: author.userId,
+        authorId: created.authorId,
         status: created.status,
         sentAt: created.sentAt,
+        notificationHash: created.notificationHash,
       });
-
-      expect(emailSpy).toHaveBeenCalledTimes(2);
+      console.log("Updated Notification:", result);
       expect(result.status).toBe(NotificationStatus.SENT);
       expect(result.title).toBe("Updated Title Notification");
       expect(result.content).toBe("Updated Content Notification");
     });
 
-    it("should return an error if notification is sent", async () => {
+    it("should return an error if notification is sent already", async () => {
       const created = await notificationsController.create({
         ...mockEmailNotification,
         recipientContactId: contact.contactId,
@@ -175,9 +177,10 @@ describe("notificationsController (e2e)", () => {
           recipientContactId: contact.contactId,
           title: "Updated Title",
           content: "Updated Content",
-          authorId: author.userId,
+          authorId: created.authorId,
           sentAt: created.sentAt,
           status: created.status,
+          notificationHash: created.notificationHash,
         });
       } catch (error) {
         expect(error).toBeDefined();
@@ -191,7 +194,7 @@ describe("notificationsController (e2e)", () => {
           ...mockEmailNotification,
           notificationId: "non-existent-notification",
           recipientContactId: contact.contactId,
-          authorId: contact.authorId,
+          authorId: author.userId,
           sentAt: new Date(),
           status: "PENDING",
         });
@@ -207,13 +210,13 @@ describe("notificationsController (e2e)", () => {
       await notificationsController.create({
         ...mockSmsNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
 
       await notificationsController.create({
         ...mockEmailNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
 
       const results = await notificationsController.getAll(author.userId);
@@ -233,7 +236,7 @@ describe("notificationsController (e2e)", () => {
       const created = await notificationsController.create({
         ...mockEmailNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
       const result = await notificationsController.getById({
         notificationId: created.notificationId,
@@ -263,7 +266,7 @@ describe("notificationsController (e2e)", () => {
       const created = await notificationsController.create({
         ...mockSmsNotification,
         recipientContactId: contact.contactId,
-        authorId: contact.authorId,
+        authorId: author.userId,
       });
       await notificationsController.delete({
         notificationId: created.notificationId,

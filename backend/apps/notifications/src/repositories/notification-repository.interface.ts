@@ -4,6 +4,7 @@ import {
   UpdateNotificationDto,
   DeleteNotificationDto,
   FindOneNotificationDto,
+  FindByHashNotificationDto,
 } from "../dtos/NotificationDto";
 
 export interface INotificationRepository {
@@ -11,5 +12,8 @@ export interface INotificationRepository {
   updateNotification: (data: UpdateNotificationDto) => Promise<NotificationResponseDto>;
   getAllNotifications: (authorId: string) => Promise<NotificationResponseDto[]>;
   getNotificationById: (data: FindOneNotificationDto) => Promise<NotificationResponseDto | null>;
+  getNotificationByHash: (
+    data: FindByHashNotificationDto,
+  ) => Promise<NotificationResponseDto | null>;
   deleteNotification: (data: DeleteNotificationDto) => Promise<NotificationResponseDto>;
 }

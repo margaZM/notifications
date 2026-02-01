@@ -21,6 +21,9 @@ export class CreateNotificationDto {
   @IsEnum(NotificationChannel)
   @IsNotEmpty()
   channel: NotificationChannel;
+
+  @IsOptional()
+  notificationHash?: string;
 }
 
 export class UpdateNotificationDto {
@@ -51,12 +54,25 @@ export class UpdateNotificationDto {
 
   @IsOptional()
   sentAt: Date;
+
+  @IsOptional()
+  notificationHash?: string;
 }
 
 export class FindOneNotificationDto {
   @IsUUID()
   @IsNotEmpty()
   notificationId: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  authorId: string;
+}
+
+export class FindByHashNotificationDto {
+  @IsUUID()
+  @IsNotEmpty()
+  notificationHash: string;
 
   @IsUUID()
   @IsNotEmpty()
@@ -84,6 +100,7 @@ export class NotificationResponseDto {
   updatedAt: Date;
   sentAt?: Date;
   status: NotificationStatus;
+  notificationHash: string;
 }
 
 export type FullNotificationResponseDto = NotificationResponseDto & {

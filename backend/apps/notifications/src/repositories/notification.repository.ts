@@ -5,20 +5,23 @@ import {
   FindOneNotificationDto,
   NotificationResponseDto,
   UpdateNotificationDto,
+  FindByHashNotificationDto,
 } from "../dtos/NotificationDto";
-import { Injectable } from "@nestjs/common";
 import { DatabaseService } from "@margazm/database";
 
 export class NotificationRepository implements INotificationRepository {
   constructor(private prisma: DatabaseService) {}
 
-  createNotification(data: CreateNotificationDto): Promise<NotificationResponseDto> {
-    const { title, content, channel, authorId, recipientContactId } = data;
+  createNotification(
+    data: CreateNotificationDto & { notificationHash: string },
+  ): Promise<NotificationResponseDto> {
+    const { title, content, channel, authorId, recipientContactId, notificationHash } = data;
     return this.prisma.notification.create({
       data: {
         title,
         content,
         channel,
+        notificationHash,
         author: { connect: { userId: authorId } },
         recipientContact: { connect: { contactId: recipientContactId } },
       },
@@ -52,6 +55,12 @@ export class NotificationRepository implements INotificationRepository {
   getNotificationById(data: FindOneNotificationDto): Promise<NotificationResponseDto | null> {
     return this.prisma.notification.findUnique({
       where: { notificationId: data.notificationId, authorId: data.authorId },
+    });
+  }
+
+  getNotificationByHash(data: FindByHashNotificationDto): Promise<NotificationResponseDto | null> {
+    return this.prisma.notification.findUnique({
+      where: { notificationHash: data.notificationHash, authorId: data.authorId },
     });
   }
 

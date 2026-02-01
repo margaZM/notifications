@@ -4,7 +4,7 @@ import { NotificationsService } from "./services/notification.service";
 import { DatabaseModule } from "./database/database.module";
 import { NotificationRepository } from "./repositories/notification.repository";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { NOTIFICATIONS_REPOSITORY_PORT } from "./app.constants";
+import { HASHER_PORT, NOTIFICATIONS_REPOSITORY_PORT } from "./app.constants";
 import { SendGridService } from "./services/sendgrid.service";
 import { TwilioService } from "./services/twilio.service";
 import { PushService } from "./services/push.service";
@@ -15,6 +15,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { CONTACTS_SERVICE, SERVICES_CONFIG } from "@margazm/common";
 import { NotificationSenderService } from "./services/notification-sender.service";
 import { DatabaseService } from "@margazm/database";
+import { HasherService } from "./services/hasher.service";
 
 @Module({
   imports: [
@@ -76,6 +77,10 @@ import { DatabaseService } from "@margazm/database";
       provide: PushNotificationSenderStrategy,
       useFactory: (push: PushService) => new PushNotificationSenderStrategy(push),
       inject: [PushService],
+    },
+    {
+      provide: HASHER_PORT,
+      useFactory: () => new HasherService(),
     },
   ],
   exports: [NOTIFICATIONS_REPOSITORY_PORT],

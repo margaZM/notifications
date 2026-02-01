@@ -12,8 +12,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@margazm/database':
-        specifier: 1.0.22
-        version: 1.0.22(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))
+        specifier: 1.0.23
+        version: 1.0.23(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))
       '@nestjs/common':
         specifier: ^11.0.1
         version: 11.1.11(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -933,8 +933,8 @@ packages:
   '@margazm/common@1.0.1':
     resolution: {integrity: sha512-PyzGHxFFpFw9Ju5JWnIbbeOjipTH2FNG/7Zm1lH4LQFAOKxrm9Cuc6/hnORlV1PXX0Of5p/BWBbw/G9DYeerRg==, tarball: https://npm.pkg.github.com/download/@margazm/common/1.0.1/1eef033212fb043287152a33a8e9faa18dfa304f}
 
-  '@margazm/database@1.0.22':
-    resolution: {integrity: sha512-qajnbtdVqVEUkjX8XVcgpJShPnCvD4gr4OnzWYcGbgCiwRCkEG9AskJvljt+BIDp+L5/RoX7EonA3xe2RbFBXQ==, tarball: https://npm.pkg.github.com/download/@margazm/database/1.0.22/3c0fb2edd4dd327c20069032ae01782790c97af9}
+  '@margazm/database@1.0.23':
+    resolution: {integrity: sha512-IS8GYJaMT9vJrj+9hV0yLN71wJM+6z4CphbpEmtF2jK4E6oxwxvCjFXxoSS5fUri6oeo0lUVY6GFvKkrcyLwPA==, tarball: https://npm.pkg.github.com/download/@margazm/database/1.0.23/d9df5074d05615f2716fc66e36ef9564ceee92af}
     peerDependencies:
       '@prisma/client': '>=7'
 
@@ -4957,7 +4957,7 @@ snapshots:
       '@types/node': 22.19.3
       typescript: 5.9.3
 
-  '@margazm/database@1.0.22(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))':
+  '@margazm/database@1.0.23(@prisma/client@7.2.0(prisma@7.2.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3))':
     dependencies:
       '@prisma/adapter-pg': 7.2.0
       '@prisma/client': 7.2.0(prisma@7.2.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3))(typescript@5.9.3)

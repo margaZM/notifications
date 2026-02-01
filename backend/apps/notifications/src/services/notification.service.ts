@@ -6,7 +6,7 @@ import {
   FullNotificationResponseDto,
   UpdateNotificationDto,
 } from "../dtos/NotificationDto";
-import { NOTIFICATIONS_REPOSITORY_PORT } from "../app.constants";
+import { HASHER_PORT, NOTIFICATIONS_REPOSITORY_PORT } from "../app.constants";
 import { type INotificationRepository } from "../repositories/notification-repository.interface";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
@@ -14,6 +14,7 @@ import { NotificationStatus } from "@margazm/database";
 import { CONTACTS_SERVICE, EVENTS } from "@margazm/common";
 import { NotificationSenderService } from "./notification-sender.service";
 import { RpcException } from "@nestjs/microservices";
+import { HashGenerator } from "src/ports/hash-generator.interface";
 
 @Injectable()
 export class NotificationsService {
@@ -25,14 +26,52 @@ export class NotificationsService {
 
     @Inject(CONTACTS_SERVICE)
     private readonly contactClient: ClientProxy,
+
+    @Inject(HASHER_PORT)
+    private readonly cryptoHashService: HashGenerator,
   ) {}
 
   async create(
     data: CreateNotificationDto & { authorId: string },
   ): Promise<FullNotificationResponseDto> {
-    const contact = await this.fetchContactData(data.recipientContactId);
+    let initialNotification = {} as FullNotificationResponseDto;
+    let contact = {
+      phoneNumber: "",
+      email: "",
+      deviceToken: "",
+    };
 
-    const initialNotification = await this.notificationRepository.createNotification(data);
+    const notificationHashData = {
+      title: data.title,
+      content: data.content,
+      channel: data.channel,
+      authorId: data.authorId,
+      recipientContactId: data.recipientContactId,
+    };
+
+    const notificationHash = this.cryptoHashService.generate(notificationHashData);
+    const existsNotification =
+      (await this.notificationRepository.getNotificationByHash({
+        authorId: data.authorId,
+        notificationHash,
+      })) || null;
+
+    console.log("Exists Notification:", existsNotification);
+
+    if (existsNotification === null) {
+      console.log("Creating new notification");
+      contact = await this.fetchContactData(data.recipientContactId);
+      initialNotification = await this.notificationRepository.createNotification({
+        ...data,
+        authorId: data.authorId,
+        notificationHash: notificationHash,
+      });
+    } else {
+      if (existsNotification.status === NotificationStatus.SENT) {
+        throw new RpcException({ message: "Duplicate notification.", statusCode: 400 });
+      }
+      initialNotification = existsNotification;
+    }
 
     try {
       const deliveryResult = await this.senderService.send(data.channel, {
