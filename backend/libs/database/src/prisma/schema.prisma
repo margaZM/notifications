@@ -50,6 +50,7 @@ model Notification {
   status             NotificationStatus  @default(PENDING)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+  notificationHash   String              @unique
 
   recipientContact   Contact             @relation("NotificationRecipient", fields: [recipientContactId], references: [contactId], onDelete: Cascade)
   author             User                @relation("NotificationAuthor", fields: [authorId], references: [userId], onDelete: Cascade)
