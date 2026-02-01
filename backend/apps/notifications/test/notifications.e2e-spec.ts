@@ -145,8 +145,6 @@ describe("notificationsController (e2e)", () => {
 
       expect(created.status).toBe(NotificationStatus.FAILED);
 
-      console.log("Created Notification:", created);
-
       const result = await notificationsController.update({
         ...mockEmailNotification,
         notificationId: created.notificationId,
@@ -158,7 +156,6 @@ describe("notificationsController (e2e)", () => {
         sentAt: created.sentAt,
         notificationHash: created.notificationHash,
       });
-      console.log("Updated Notification:", result);
       expect(result.status).toBe(NotificationStatus.SENT);
       expect(result.title).toBe("Updated Title Notification");
       expect(result.content).toBe("Updated Content Notification");

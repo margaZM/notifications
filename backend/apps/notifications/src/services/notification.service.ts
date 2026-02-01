@@ -56,10 +56,7 @@ export class NotificationsService {
         notificationHash,
       })) || null;
 
-    console.log("Exists Notification:", existsNotification);
-
     if (existsNotification === null) {
-      console.log("Creating new notification");
       contact = await this.fetchContactData(data.recipientContactId);
       initialNotification = await this.notificationRepository.createNotification({
         ...data,
