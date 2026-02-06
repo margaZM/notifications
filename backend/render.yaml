@@ -28,6 +28,9 @@ services:
   - type: pserv
     name: auth-service
     runtime: docker
+    repo: https://github.com/margazm/notifications
+    branch: main
+    region: oregon
     dockerContext: .
     dockerfilePath: apps/auth/Dockerfile
     envVars:
@@ -43,6 +46,9 @@ services:
   - type: pserv
     name: contacts-service
     runtime: docker
+    repo: https://github.com/margazm/notifications
+    branch: main
+    region: oregon
     dockerContext: .
     dockerfilePath: apps/contacts/Dockerfile
     envVars:
@@ -58,6 +64,9 @@ services:
   - type: pserv
     name: notifications-service
     runtime: docker
+    repo: https://github.com/margazm/notifications
+    branch: main
+    region: oregon
     dockerContext: .
     dockerfilePath: apps/notifications/Dockerfile
     envVars:
@@ -71,6 +80,7 @@ services:
 databases:
   - name: notifications-bd
     plan: free
+    region: oregon
 
 envVarGroups:
   - name: shared-secrets
