@@ -3,6 +3,9 @@ services:
   - type: web
     name: api-gateway
     runtime: docker
+    repo: https://github.com/margazm/notifications
+    branch: main
+    region: oregon
     dockerContext: .
     dockerfilePath: apps/api-gateway/Dockerfile
     plan: free
