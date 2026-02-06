@@ -1,0 +1,82 @@
+services:
+  # API GATEWAY
+  - type: web
+    name: api-gateway
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: apps/api-gateway/Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - fromGroup: shared-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: notifications-db
+          property: connectionString
+      - key: AUTH_SERVICE_URL
+        value: http://auth-service:3001
+      - key: CONTACTS_SERVICE_URL
+        value: http://contacts-service:3002
+      - key: NOTIFICATIONS_SERVICE_URL
+        value: http://notifications-service:3003
+    dockerBuildArgs:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+  # AUTH SERVICE
+  - type: pserv
+    name: auth-service
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: apps/auth/Dockerfile
+    envVars:
+      - key: PORT
+        value: 3001
+      - fromGroup: shared-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: notifications-db
+          property: connectionString
+    dockerBuildArgs:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+  # CONTACTS SERVICE
+  - type: pserv
+    name: contacts-service
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: apps/contacts/Dockerfile
+    envVars:
+      - key: PORT
+        value: 3002
+      - fromGroup: shared-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: notifications-db
+          property: connectionString
+    dockerBuildArgs:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+  # NOTIFICATIONS SERVICE
+  - type: pserv
+    name: notifications-service
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: apps/notifications/Dockerfile
+    envVars:
+      - key: PORT
+        value: 3003
+      - fromGroup: shared-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: notifications-db
+          property: connectionString
+    dockerBuildArgs:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+
+databases:
+  - name: notifications-db
+    plan: free
+
+envVarGroups:
+  - name: shared-secrets
