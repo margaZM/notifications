@@ -5,8 +5,8 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: .
-    dockerfilePath: backend/apps/api-gateway/Dockerfile
+    dockerContext: backend
+    dockerfilePath: apps/api-gateway/Dockerfile
     envVars:
       - key: PORT
         value: 3000
@@ -27,8 +27,8 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: .
-    dockerfilePath: backend/apps/auth/Dockerfile
+    dockerContext: backend
+    dockerfilePath: apps/auth/Dockerfile
     envVars:
       - key: PORT
         value: 3001
@@ -47,8 +47,8 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: .
-    dockerfilePath: backend/apps/contacts/Dockerfile
+    dockerContext: backend
+    dockerfilePath: apps/contacts/Dockerfile
     envVars:
       - key: PORT
         value: 3002
@@ -65,8 +65,8 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: .
-    dockerfilePath: backend/apps/notifications/Dockerfile
+    dockerContext: backend
+    dockerfilePath: apps/notifications/Dockerfile
     envVars:
       - key: PORT
         value: 3003
