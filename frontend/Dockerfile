@@ -24,5 +24,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./
 RUN pnpm install --frozen-lockfile --prod
-EXPOSE 4000
-CMD ["pnpm", "start"]
+
+EXPOSE 3000
+CMD ["sh", "-c", "pnpm start -p ${PORT:-3000} -H 0.0.0.0"]
