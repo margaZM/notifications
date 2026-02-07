@@ -98,7 +98,7 @@ services:
     plan: free
     region: oregon
     dockerContext: frontend
-    dockerfilePath: Dockerfile
+    dockerfilePath: frontend/Dockerfile
     envVars:
       - key: NEXT_PUBLIC_API_URL
         sync: false
