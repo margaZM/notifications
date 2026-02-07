@@ -5,7 +5,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: backend
+    dockerContext: backend/apps/api-gateway
     dockerfilePath: backend/apps/api-gateway/Dockerfile
     envVars:
       - key: PORT
@@ -27,7 +27,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: backend
+    dockerContext: backend/apps/auth
     dockerfilePath: backend/apps/auth/Dockerfile
     envVars:
       - key: PORT
@@ -47,7 +47,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: backend
+    dockerContext: backend/apps/contacts
     dockerfilePath: backend/apps/contacts/Dockerfile
     envVars:
       - key: PORT
@@ -65,7 +65,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    dockerContext: backend
+    dockerContext: backend/apps/notifications
     dockerfilePath: backend/apps/notifications/Dockerfile
     envVars:
       - key: PORT
