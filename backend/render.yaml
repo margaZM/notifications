@@ -6,7 +6,7 @@ services:
     plan: free
     region: oregon
     dockerContext: .
-    dockerfilePath: apps/api-gateway/Dockerfile
+    dockerfilePath: ./apps/api-gateway/Dockerfile
     envVars:
       - key: PORT
         value: 3000
@@ -28,7 +28,7 @@ services:
     plan: free
     region: oregon
     dockerContext: .
-    dockerfilePath: apps/auth/Dockerfile
+    dockerfilePath: ./apps/auth/Dockerfile
     envVars:
       - key: PORT
         value: 3001
@@ -48,7 +48,7 @@ services:
     plan: free
     region: oregon
     dockerContext: .
-    dockerfilePath: apps/contacts/Dockerfile
+    dockerfilePath: ./apps/contacts/Dockerfile
     envVars:
       - key: PORT
         value: 3002
@@ -66,7 +66,7 @@ services:
     plan: free
     region: oregon
     dockerContext: .
-    dockerfilePath: apps/notifications/Dockerfile
+    dockerfilePath: ./apps/notifications/Dockerfile
     envVars:
       - key: PORT
         value: 3003
@@ -91,7 +91,6 @@ services:
           name: notifications-db
           property: connectionString
 
-# Creación de la nueva Base de Datos
 databases:
   - name: notifications-db
     plan: free
