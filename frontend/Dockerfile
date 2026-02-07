@@ -22,8 +22,8 @@ RUN npm install -g pnpm
 ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./
-RUN pnpm install --frozen-lockfile --prod
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 EXPOSE 3000
 CMD ["sh", "-c", "pnpm start -p ${PORT:-3000} -H 0.0.0.0"]
