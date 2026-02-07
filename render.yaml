@@ -15,11 +15,11 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: AUTH_SERVICE_URL
-        value: http://auth-service:3001
+        value: https://auth-service-8x2f.onrender.com
       - key: CONTACTS_SERVICE_URL
-        value: http://contacts-service:3002
+        value: https://contacts-service-ar6l.onrender.com
       - key: NOTIFICATIONS_SERVICE_URL
-        value: http://notifications-service:3003
+        value: https://notifications-service-ztv5.onrender.com
       - key: FRONTEND_URL
         value: https://frontend-notifications.onrender.com
 
