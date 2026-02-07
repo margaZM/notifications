@@ -99,9 +99,6 @@ services:
     region: oregon
     dockerContext: frontend
     dockerfilePath: Dockerfile
-    dockerBuildArgs:
-      - key: NEXT_PUBLIC_API_URL
-        value: ${NEXT_PUBLIC_API_URL}
     envVars:
       - key: NEXT_PUBLIC_API_URL
         sync: false
