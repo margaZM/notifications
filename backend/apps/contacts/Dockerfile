@@ -31,4 +31,4 @@ COPY --from=builder /app/node_modules/@margazm/database/dist/generated/client/sc
 
 EXPOSE 3002
 
-CMD ["sh", "-c", "npx prisma db push --schema=./schema.prisma --accept-data-loss --url=\"$DATABASE_URL\" && node dist/main.js"]
+CMD ["pnpm", "run", "start:deploy"]

@@ -8,6 +8,8 @@
     "start:dev": "nest start --watch",
     "docker:db:setup": "prisma db push --schema=./node_modules/@margazm/database/dist/generated/client/schema.prisma --url=$DATABASE_URL",
     "docker:start:auth": "pnpm run docker:db:setup && pnpm run start:dev",
+    "db:push": "prisma db push --schema=./schema.prisma --accept-data-loss",
+    "start:deploy": "pnpm run db:push && node dist/main.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage --config ./test/jest-e2e.json --runInBand",
