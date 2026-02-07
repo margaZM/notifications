@@ -11,7 +11,7 @@
     "test:cov": "jest --coverage --config ./test/jest-e2e.json --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:push": "prisma db push --schema=./schema.prisma --accept-data-loss --url=$DATABASE_URL",
-    "start:deploy": "pnpm run db:push && node dist/main.js"
+    "start:deploy": "pnpm run db:push && node $(find dist -name main.js | head -n 1)"
   },
   "keywords": [],
   "author": "",
