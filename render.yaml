@@ -91,6 +91,21 @@ services:
           name: notifications-db
           property: connectionString
 
+  # FRONTEND
+  - type: web
+    name: frontend-notifications
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm run start
+    rootDirectory: frontend
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+      - key: PORT
+        value: 10000
+
 databases:
   - name: notifications-db
     plan: free
