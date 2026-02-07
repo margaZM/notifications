@@ -3,20 +3,20 @@ RUN npm install -g pnpm
 WORKDIR /app
 
 ARG GITHUB_TOKEN
-RUN if [ -n "$GITHUB_TOKEN" ]; then \
-      echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc; \
-    fi
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN --mount=type=secret,id=npmrc,target=/root/.npmrc pnpm install --frozen-lockfile
+RUN if [ -n "$GITHUB_TOKEN" ]; then \
+      echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc && \
+      echo "@margazm:registry=https://npm.pkg.github.com" >> .npmrc; \
+    fi
+
+RUN pnpm install --frozen-lockfile
 
 RUN rm -f .npmrc
 
-FROM base AS development
+FROM base AS builder
 COPY . .
-
-FROM development AS builder
 RUN pnpm run build
 
 FROM node:20-alpine AS production
