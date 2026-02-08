@@ -15,8 +15,10 @@ RUN pnpm install --frozen-lockfile
 
 RUN rm -f .npmrc
 
-FROM base AS builder
-COPY . .
+FROM base AS development
+COPY . . 
+
+FROM development AS builder
 RUN pnpm run build
 
 FROM node:20-alpine AS production

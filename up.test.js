@@ -4,10 +4,13 @@ const path = require('path');
 const backendPath = path.join(__dirname, 'backend');
 
 try {
-	execSync('docker compose -f docker-compose.test.yml up --build -d', {
-		cwd: backendPath,
-		stdio: 'inherit',
-	});
+	execSync(
+		'docker compose --env-file .env.test -f docker-compose.test.yml up --build -d',
+		{
+			cwd: backendPath,
+			stdio: 'inherit',
+		},
+	);
 	const logs = spawn(
 		'docker',
 		['compose', '-f', 'docker-compose.test.yml', 'logs', '-f'],

@@ -26,8 +26,8 @@ services:
       context: ./apps/auth
       dockerfile: ./Dockerfile
       target: development
-      secrets:
-        - npmrc
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: auth-service
     env_file: .env.test
     depends_on:
@@ -46,8 +46,8 @@ services:
       context: ./apps/contacts
       dockerfile: ./Dockerfile
       target: development
-      secrets:
-        - npmrc
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: contacts-service
     env_file: .env.test
     depends_on:
@@ -68,8 +68,8 @@ services:
       context: ./apps/notifications
       dockerfile: ./Dockerfile
       target: development
-      secrets:
-        - npmrc
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: notifications-service
     env_file: .env.test
     depends_on:
@@ -88,8 +88,8 @@ services:
     build:
       context: ./apps/api-gateway
       dockerfile: ./Dockerfile
-      secrets:
-        - npmrc
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: api-gateway
     env_file: .env.test
     depends_on:
@@ -108,7 +108,3 @@ networks:
 
 volumes:
   postgres_data:
-
-secrets:
-  npmrc:
-    file: .npmrc

@@ -20,6 +20,7 @@ jobs:
               cp .npmrc backend/.npmrc
             fi
 
+            echo "GITHUB_TOKEN=\"$GITHUB_TOKEN\"" >> .env
             echo 'NODE_ENV="test"' > .env
             echo "DATABASE_URL=\"$DATABASE_URL\"" >> .env
             echo "JWT_SECRET=\"$JWT_SECRET\"" >> .env
